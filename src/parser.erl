@@ -75,21 +75,72 @@ some(P) ->
 number() ->
     fun(Inp) ->
 	    apply(some(satisfy(
-			 fun(C) ->
-				 case C of
-				     $0 -> true;
-				     $1 -> true;
-				     $2 -> true;
-				     $3 -> true;
-				     $4 -> true;
-				     $5 -> true;
-				     $6 -> true;
-				     $7 -> true;
-				     $8 -> true;
-				     $9 -> true;
-				     _other -> false
-				 end
-			 end
+			 fun(C) -> (C >= $0) and (C =< $9) end
 			))
 		  , [Inp])
+    end.
+
+word() ->
+    fun(Inp) ->
+	    apply(some(satisfy(
+			 fun(C) -> ((C >= $a) and (C =< $z))
+				       or ((C >= $A) and (C =< $Z))
+			 end
+			 ))
+		  , [Inp])
+    end.
+
+string(Str) ->
+    fun(Inp) ->
+	    case Str of
+		[] ->
+		    apply(succeed([]), [Inp]);
+		[X|Xs] ->
+		    apply(using(then(literal(X), string(Xs))
+				, fun({Y,Ys}) -> [Y|Ys] end
+				)
+			  , [Inp])
+	    end
+    end.
+
+xthen(P1, P2) ->
+    using(then(P1, P2), fun({_x, Y}) -> Y end).
+
+thenx(P1, P2) ->
+    using(then(P1, P2), fun({X, _y}) -> X end).
+
+return(P, V) ->
+    using(P, apply(fun(X) -> fun(_y) -> X end end, [V])).
+
+expn() ->
+    fun(Inp) ->
+	    apply(
+	      alt(using(then(term(), xthen(literal($+), term()))
+			, fun({X, Y}) -> {X, "+", Y} end)
+		  , alt(using(then(term(), xthen(literal($-), term()))
+			      , fun({X, Y}) -> {X, "-", Y} end)
+			, term())
+		 )
+	      , [Inp])
+    end.
+
+term() ->
+    fun(Inp) ->
+	    apply(
+	      alt(using(then(factor(), xthen(literal($*), factor()))
+			, fun({X, Y}) -> {X, "*", Y} end)
+		  , alt(using(then(factor(), xthen(literal($/), factor()))
+			      , fun({X, Y}) -> {X, "/", Y} end)
+			, factor())
+		 )
+	      , [Inp])
+    end.
+
+factor() ->
+    fun(Inp) ->
+	    apply(
+	      alt(using(number(), fun(X) -> X end)
+		  , xthen(literal($(), thenx(expn(), literal($))))
+		 )
+	      , [Inp])
     end.
