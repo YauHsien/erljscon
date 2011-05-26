@@ -223,26 +223,32 @@ char() ->
     fun(Inp) ->
 	    apply(
 	      alt(non_control_char()
-		  , alt(double_quote()
-			, alt(back_slash()
-			      , alt(slash()
-				    , alt(bksp()
-					  , alt(ff()
-						, alt(nl()
-						      , alt(cr()
-							    , alt(tab()
+		  , alt(using(double_quote(), fun stdlib:cons/1)
+			, alt(using(back_slash(), fun stdlib:cons/1)
+			      , alt(using(slash(), fun stdlib:cons/1)
+				    , alt(using(bksp(), fun stdlib:cons/1)
+					  , alt(using(ff(), fun stdlib:cons/1)
+						, alt(using(nl(), fun stdlib:cons/1)
+						      , alt(using(cr(), fun stdlib:cons/1)
+							    , alt(using(tab(), fun stdlib:cons/1)
 								  , unicode()
 								 )))))))))
 	      , [Inp])
     end.
 
 chars() ->
-    some(char()).
+    fun(Inp) ->
+	    apply(some(char()), [Inp])
+    end.
 
 string() ->
-    alt(xthen(literal($"), thenx(succeed([]), literal($")))
-	, xthen(literal($"), thenx(chars(), literal($")))
-       ).
+    fun(Inp) ->
+	    apply(
+	      alt(xthen(literal($"), thenx(succeed([]), literal($")))
+		  , xthen(literal($"), thenx(chars(), literal($")))
+		 )
+	      , [Inp])
+    end.
 
 %%=================================
 e() ->
@@ -300,3 +306,27 @@ number() ->
 	      , alt(using(then(int(), exp()), fun stdlib:append/1)
 		    , using(then(using(then(int(), frac()), fun stdlib:append/1), exp()), fun stdlib:append/1)
 		    ))).
+
+true() ->
+    using(string("true"), fun(T) -> case T of "true" -> true; _ -> nil end end).
+
+false() ->
+    using(string("false"), fun(T) -> case T of "false" -> false; _ -> nil end end).
+
+null() ->
+    using(string("null"), fun(N) -> case N of "null" -> null; _ -> nil end end).
+
+skip() ->
+    xthen(
+      some(
+	alt(
+	  literal($\x{20})
+	  , alt(
+	      nl()
+	      , alt(
+		  cr()
+		  , tab())))
+       )
+      , succeed([])
+     ).
+
