@@ -1,5 +1,7 @@
 -module(parser).
 -compile(export_all).
+-define(DELAY(E), fun()-> E end).
+-define(FORCE(F), F()).
 
 -import(stdlib).
 
