@@ -1,17 +1,21 @@
 -module(parser).
 -compile(export_all).
+-include("../include/parsing.hrl").
 -define(DELAY(E), fun()-> E end).
 -define(FORCE(F), F()).
-
--import(stdlib).
 
 %% Walking through Graham Hutton's paper: Higher-Order Functions for Parsing.
 
 succeed(V, Inp) -> [{V, Inp}].
+
+succeed() ->
+    stdlib:curry(fun succeed/2).
+
 succeed(V) ->
     fun(Inp) ->
 	    [{V, Inp}]
     end.
+
 fail(_inp) -> [].
 fail() ->
     fun(_inp) ->
