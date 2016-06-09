@@ -6,11 +6,13 @@
 
 %% Walking through Graham Hutton's paper: Higher-Order Functions for Parsing.
 
-succeed(V, Inp) -> [{V, Inp}].
+-spec succeed(any(), input()) -> parsing().
+succeed(V, Inp) -> [#parsing{ parsed= V, rest= Inp }].
 
 succeed() ->
     stdlib:curry(fun succeed/2).
 
+-spec succeed(input()) -> [#parsing{}].
 succeed(V) ->
     fun(Inp) ->
 	    [{V, Inp}]

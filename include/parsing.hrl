@@ -7,6 +7,7 @@
 -record(parsing, { parsed :: parsed(),
 		   rest :: input() }).
 
--type parser() :: fun((input()) -> [#parsing{}]).
+-type parsing() :: #parsing{}.
+-type parser() :: fun((input()) -> [parsing()]).
 
 -endif.
