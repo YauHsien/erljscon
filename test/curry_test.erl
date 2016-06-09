@@ -3,9 +3,6 @@
 -include("../include/parsing.hrl").
 -include("../include/curry.hrl").
 
-curry(_, _) ->
-    hello_world.
-
 curry_test() ->
     P = fn_util:curry(fun parser:succeed/2),
     % io:fwrite("~p~n", [erlang:fun_info(P)]),
