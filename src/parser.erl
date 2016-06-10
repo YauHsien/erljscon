@@ -7,6 +7,9 @@
 
 %% Walking through Graham Hutton's paper: Higher-Order Functions for Parsing.
 
+%% Parser constructors
+%% -------------------
+
 -spec p(function(), any()) -> parser().
 p(F, A) ->
     (fn_util:curry(F))(A).
@@ -14,6 +17,9 @@ p(F, A) ->
 -spec p(function()) -> parser().
 p(F) ->
     fn_util:curry(F).
+
+%% Primitive parsers
+%% -----------------
 
 -spec succeed(any(), input()) -> [parsing()].
 succeed(V, Inp) -> [#parsing{ parsed= V, rest= Inp }].
@@ -32,24 +38,12 @@ satisfy(P, [X|Xs]) ->
 	    fail(Xs)
     end.
 
-satisfy(Predicate) ->
-    fun(List) ->
-	    case List of
-		[] ->
-		    [];
-		[X|Xs] ->
-		    case apply(Predicate, [X]) of
-			true ->
-			    succeed(X, Xs);
-			false ->
-			    fail(Xs)
-		    end
-	    end
-    end.
-
 -spec literal(any()) -> parser().
 literal(A) ->
     parser:p(fun parser:satisfy/2, fun(X) -> X == A end).
+
+%% Combinators
+%% -----------
 
 alt(P1, P2) ->
     fun(Inp) ->
@@ -84,16 +78,17 @@ some(P) ->
 
 %%=================================
 number_() ->
-    satisfy(fun(C) -> (C >= $0) and (C =< $9) end).
+    parser:p(fun parser:satisfy/2, fun(C) -> (C >= $0) and (C =< $9) end).
 
 word() ->
     fun(Inp) ->
-	    apply(some(satisfy(
+	    apply(some(parser:p(
+			 fun parser:satisfy/2,
 			 fun(C) -> ((C >= $a) and (C =< $z))
 				       or ((C >= $A) and (C =< $Z))
 			 end
-			 ))
-		  , [Inp])
+			))
+		      , [Inp])
     end.
 
 string(Str) ->
@@ -157,8 +152,10 @@ factor() ->
 non_control_char() ->
     fun(Inp) ->
 	    apply(
-	      satisfy(fun(C) -> ((C =/= $") and (C =/= $\\) and (C > $\x{1F})) end)
-	      , [Inp])
+	      parser:p(
+		fun parser:satisfy/2,
+		fun(C) -> (C =/= $") and (C =/= $\\) and (C > $\x{1F}) end),
+	    [Inp])
     end.
 
 double_quote() ->
@@ -219,11 +216,13 @@ unicode() ->
 
 hex_digit() ->
     fun(Inp) ->
-	    apply(satisfy(fun(C) -> ((C >= $0) and (C =< $9))
-					or ((C >= $a) and (C =< $f))
-					or ((C >= $A) and (C =< $F))
-			  end)
-		  , [Inp])
+	    apply(parser:p(
+		    fun parser:satisfy/2,
+		    fun(C) -> ((C >= $0) and (C =< $9))
+				  or ((C >= $a) and (C =< $f))
+				  or ((C >= $A) and (C =< $F))
+		    end)
+		 , [Inp])
     end.
 
 %%=====================================
@@ -260,14 +259,15 @@ string() ->
 
 %%=================================
 e() ->
-    alt(satisfy(fun(C) -> (C == $e) or (C == $E) end)
-	, then(satisfy(fun(C) -> (C == $e) or (C == $E) end), satisfy(fun(C) -> (C == $+) or (C == $-) end))).
+    alt(parser:p(fun parser:satisfy/2, fun(C) -> (C == $e) or (C == $E) end)
+	, then(parser:p(fun parser:satisfy/2, fun(C) -> (C == $e) or (C == $E) end),
+	       parser:p(fun parser:satisfy/2, fun(C) -> (C == $+) or (C == $-) end))).
 
 digit() ->
-    satisfy(fun(C) -> (C >= $0) and (C =< $9) end).
+    parser:p(fun parser:satisfy/2, fun(C) -> (C >= $0) and (C =< $9) end).
 
 digit1_9() ->
-    satisfy(fun(C) -> (C >= $1) and (C =< $9) end).
+    parser:p(fun parser:satisfy/2, fun(C) -> (C >= $1) and (C =< $9) end).
 
 digits() ->
     some(digit()).
