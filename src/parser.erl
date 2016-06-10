@@ -45,6 +45,7 @@ literal(A) ->
 %% Combinators
 %% -----------
 
+-spec alt(parser(), parser()) -> parser().
 alt(P1, P2) ->
     fun(Inp) ->
 	    apply(P1, [Inp]) ++ apply(P2, [Inp])
