@@ -51,10 +51,12 @@ alt(P1, P2) ->
 	    apply(P1, [Inp]) ++ apply(P2, [Inp])
     end.
 
+-spec then(parser(), parser()) -> parser().
 then(P1, P2) ->
     fun(Inp) ->
-	    [ {{V1, V2}, Out2} || {V1, Out1} <- apply(P1, [Inp])
-				, {V2, Out2} <- apply(P2, [Out1]) ]
+	    [ #parsing{ parsed= {V1, V2}, rest= Out2 }
+	      || #parsing{ parsed= V1, rest= Out1 } <- apply(P1, [Inp]),
+		 #parsing{ parsed= V2, rest= Out2 } <- apply(P2, [Out1]) ]
     end.
 
 using(P, F) ->
