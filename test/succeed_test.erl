@@ -13,3 +13,8 @@ succeed_test() ->
     E = [#parsing{ parsed= 5, rest= "hello,world" }],
     ?assertEqual(E, V).
 
+p_test() ->
+    P = parser:p(fun parser:succeed/2, 7),
+    V = P("hello,world"),
+    E = [#parsing{ parsed= 7, rest= "hello,world" }],
+    ?assertEqual(E, V).

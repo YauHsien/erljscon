@@ -3,9 +3,6 @@
 -define(DELAY(E), fun()-> E end).
 -define(FORCE(F), F()).
 
-%curry(F) when is_function(F, 2) ->
-%    fun(X) -> fun(Y) -> F(X, Y) end end.
-
 curry(F) ->
     {_M, _F, A} = parts(F),
     curry(F, A, []).

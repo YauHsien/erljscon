@@ -3,6 +3,7 @@
 
 -type parsed() :: any().
 -type input() :: string().
+-type predicate() :: fun((any()) -> boolean()).
 
 -record(parsing, { parsed :: parsed(),
 		   rest :: input() }).

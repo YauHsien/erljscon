@@ -1,32 +1,31 @@
 -module(parser).
 -compile(export_all).
+-export([p/2, p/1, succeed/2, fail/1, satisfy/2, literal/1]).
 -include("../include/parsing.hrl").
 -define(DELAY(E), fun()-> E end).
 -define(FORCE(F), F()).
 
 %% Walking through Graham Hutton's paper: Higher-Order Functions for Parsing.
 
--spec succeed(any(), input()) -> parsing().
+-spec p(function(), any()) -> parser().
+p(F, A) ->
+    (fn_util:curry(F))(A).
+
+-spec p(function()) -> parser().
+p(F) ->
+    fn_util:curry(F).
+
+-spec succeed(any(), input()) -> [parsing()].
 succeed(V, Inp) -> [#parsing{ parsed= V, rest= Inp }].
 
-succeed() ->
-    stdlib:curry(fun succeed/2).
+-spec fail(input()) -> [parsing()].
+fail(_Inp) -> [].
 
--spec succeed(input()) -> [#parsing{}].
-succeed(V) ->
-    fun(Inp) ->
-	    [{V, Inp}]
-    end.
-
-fail(_inp) -> [].
-fail() ->
-    fun(_inp) ->
-	    []
-    end.
-
-satisfy(_predicate, []) -> [];
-satisfy(Predicate, [X|Xs]) ->
-    case apply(Predicate, [X]) of
+-spec satisfy(predicate(), input()) -> [parsing()].
+satisfy(_P, []) ->
+    fail([]);
+satisfy(P, [X|Xs]) ->
+    case apply(P, [X]) of
 	true ->
 	    succeed(X, Xs);
 	false ->
@@ -48,8 +47,9 @@ satisfy(Predicate) ->
 	    end
     end.
 
+-spec literal(any()) -> parser().
 literal(A) ->
-    satisfy(fun(X)-> X == A end).
+    parser:p(fun parser:satisfy/2, fun(X) -> X == A end).
 
 alt(P1, P2) ->
     fun(Inp) ->
@@ -71,7 +71,7 @@ many(P) ->
     fun(Inp) ->
 	    apply(alt(using(then(P, apply(fun many/1, [P]))
 			    , fun({X,Xs}) -> [X|Xs] end)
-		      , succeed([]))
+		      , p(fun parser:succeed/2, []))
 		  , [Inp])
     end.
 
@@ -100,7 +100,7 @@ string(Str) ->
     fun(Inp) ->
 	    case Str of
 		[] ->
-		    apply(succeed([]), [Inp]);
+		    apply(p(fun parser:succeed/2, []), [Inp]);
 		[X|Xs] ->
 		    apply(using(then(literal(X), string(Xs))
 				, fun({Y,Ys}) -> [Y|Ys] end
@@ -252,7 +252,7 @@ chars() ->
 string() ->
     fun(Inp) ->
 	    apply(
-	      alt(xthen(literal($"), thenx(succeed([]), literal($")))
+	      alt(xthen(literal($"), thenx(p(fun parser:succeed/2, []), literal($")))
 		  , xthen(literal($"), thenx(chars(), literal($")))
 		 )
 	      , [Inp])
@@ -302,7 +302,7 @@ frac() ->
     using(then(literal($.), digits()), fun stdlib:cons/1).
 
 int() ->
-    alt(using(then(digit(), succeed([])), fun stdlib:cons/1)
+    alt(using(then(digit(), p(fun parser:succeed/2, [])), fun stdlib:cons/1)
 	, alt(using(then(digit1_9(), digits()), fun stdlib:cons/1)
 	      , alt(using(then(literal($-), digit()), fun stdlib:cons/1)
 		    , using(then(then(literal($-), digit1_9()), digits()), fun({{$-, D}, Num}) -> [$-, D|Num] end)
@@ -335,6 +335,6 @@ skip() ->
 		  cr()
 		  , tab())))
        )
-      , succeed([])
+      , p(fun parser:succeed/2, [])
      ).
 
