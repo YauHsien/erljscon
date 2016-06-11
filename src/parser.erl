@@ -82,11 +82,32 @@ some(P) ->
     P1 = parser:then(P, fn_util:lazy(fun parser:many/1, [P])),
     parser:using(P1, fun cons/1).
 
+-spec xthen(parser(A, _B), parser(A, C)) -> parser(A, C).
+xthen(P1, P2) ->
+    parser:using(parser:then(P1, P2), fun snd/1).
+
+-spec thenx(parser(A, B), parser(A, _C)) -> parser(A, B).
+thenx(P1, P2) ->
+    parser:using(parser:then(P1, P2), fun fst/1).
+
+-spec return(parser(A, _B), C) -> parser(A, C).
+return(P, V) ->
+    parser:using(P, (fn_util:curry(fun const/2))(V)).
+
 %% Internal functions
 %% ------------------
 
 cons({X, Xs}) ->
     [X|Xs].
+
+fst({X, _}) ->
+    X.
+
+snd({_, X}) ->
+    X.
+
+const(X, _) ->
+    X.
 
 %%=================================
 is_digit(C) ->
@@ -110,17 +131,6 @@ string([]) ->
 string([X|Xs]) ->
     P = parser:then(parser:literal(X), fn_util:lazy(fun parser:string/1, [Xs])),
     parser:using(P, fun cons/1).
-
-%%==================================
-
-xthen(P1, P2) ->
-    using(then(P1, P2), fun({_x, Y}) -> Y end).
-
-thenx(P1, P2) ->
-    using(then(P1, P2), fun({X, _y}) -> X end).
-
-return(P, V) ->
-    using(P, apply(fun(X) -> fun(_y) -> X end end, [V])).
 
 %%===================================
 expn() ->
