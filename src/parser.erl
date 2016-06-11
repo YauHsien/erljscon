@@ -2,6 +2,7 @@
 -compile(export_all).
 -export([p/2, p/1, succeed/2, fail/1, satisfy/2, literal/1]).
 -include("../include/parsing.hrl").
+-include("../include/lazy.hrl").
 -define(DELAY(E), fun()-> E end).
 -define(FORCE(F), F()).
 
@@ -14,9 +15,12 @@
 p(F, A) ->
     (fn_util:curry(F))(A).
 
--spec p(function()) -> parser(any(), any()).
-p(F) ->
-    fn_util:curry(F).
+-spec p(function()) -> parser(any(), any());
+       (#lazy{}) -> parser(any(), any()).
+p(F) when is_function(F) ->
+    fn_util:curry(F);
+p(#lazy{ function= F, args= As }) ->
+    apply(F, As).
 
 %% Primitive parsers
 %% -----------------
@@ -48,34 +52,30 @@ literal(A) ->
 -spec alt(parser(A, B), parser(A, B)) -> parser(A, B).
 alt(P1, P2) ->
     fun(Inp) ->
-	    apply(P1, [Inp]) ++ apply(P2, [Inp])
+	    fn_util:apply(P1, [Inp]) ++ fn_util:apply(P2, [Inp])
     end.
 
 -spec then(parser(A, B), parser(A, B)) -> parser(A, B).
 then(P1, P2) ->
     fun(Inp) ->
 	    [ #parsing{ parsed= {V1, V2}, rest= Out2 }
-	      || #parsing{ parsed= V1, rest= Out1 } <- apply(P1, [Inp]),
-		 #parsing{ parsed= V2, rest= Out2 } <- apply(P2, [Out1]) ]
+	      || #parsing{ parsed= V1, rest= Out1 } <- fn_util:apply(P1, [Inp]),
+		 #parsing{ parsed= V2, rest= Out2 } <- fn_util:apply(P2, [Out1]) ]
     end.
-
--spec test(integer()) -> parsed(string()).
-test(_N) ->
-    ok.
 
 -spec using(parser(A, B), function(B, C)) -> parser(A, C).
 using(P, F) ->
     fun(Inp) ->
-	    [ Parsing#parsing{ parsed= F(Parsing#parsing.parsed) } || #parsing{}= Parsing <- P(Inp) ]
+	    [ Parsing#parsing{ parsed= F(Parsing#parsing.parsed) }
+	      || #parsing{}= Parsing <- fn_util:apply(P, [Inp]) ]
     end.
 
+-spec many(parser(A, B)) -> parser(A, [B]).
 many(P) ->
-    fun(Inp) ->
-	    apply(alt(using(then(P, apply(fun many/1, [P]))
-			    , fun({X,Xs}) -> [X|Xs] end)
-		      , p(fun parser:succeed/2, []))
-		  , [Inp])
-    end.
+    P1 = parser:then(P, fn_util:lazy(fun parser:many/1, [P])),
+    P2 = parser:using(P1, fun cons/1),
+    P3 = parser:p(fun parser:succeed/2, []),
+    parser:alt(P2, P3).
 
 some(P) ->
     fun(Inp) ->
@@ -83,6 +83,12 @@ some(P) ->
 			, fun({X,Xs}) -> [X|Xs] end)
 		  , [Inp])
     end.
+
+%% Internal functions
+%% ------------------
+
+cons({X, Xs}) ->
+    [X|Xs].
 
 %%=================================
 number_() ->
