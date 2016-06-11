@@ -1,9 +1,16 @@
-erljscon
-=====
+# erljscon
+==========
 
 An OTP application
 
-Build
------
+### Build
+---------
 
-    $ rebar3 compile
+    `$ rebar compile`
+
+### TEST
+--------
+
+	`$ rebar eunit`
+
+Examples, including the arithmetic parser described in Hutton's "Higher-Order Functions for Parsing", are listed in `src/example.hrl` and `test/*.erl`.
