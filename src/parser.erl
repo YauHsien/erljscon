@@ -77,12 +77,10 @@ many(P) ->
     P3 = parser:p(fun parser:succeed/2, []),
     parser:alt(P2, P3).
 
+-spec some(parser(A, B)) -> parser(A, [B]).
 some(P) ->
-    fun(Inp) ->
-	    apply(using(then(P, apply(fun many/1, [P]))
-			, fun({X,Xs}) -> [X|Xs] end)
-		  , [Inp])
-    end.
+    P1 = parser:then(P, fn_util:lazy(fun parser:many/1, [P])),
+    parser:using(P1, fun cons/1).
 
 %% Internal functions
 %% ------------------
@@ -91,32 +89,28 @@ cons({X, Xs}) ->
     [X|Xs].
 
 %%=================================
-number_() ->
-    parser:p(fun parser:satisfy/2, fun(C) -> (C >= $0) and (C =< $9) end).
+is_digit(C) ->
+    C >= $0 andalso C =< $9.
 
+is_letter(C) ->
+    (C >= $a andalso C =< $z) orelse
+	(C >= $A andalso C =< $Z).
+
+-spec num() -> parser(char(), [char()]).
+num() ->
+    parser:some(parser:p(fun parser:satisfy/2, fun is_digit/1)).
+
+-spec word() -> parser(char(), [char()]).
 word() ->
-    fun(Inp) ->
-	    apply(some(parser:p(
-			 fun parser:satisfy/2,
-			 fun(C) -> ((C >= $a) and (C =< $z))
-				       or ((C >= $A) and (C =< $Z))
-			 end
-			))
-		      , [Inp])
-    end.
+    parser:some(parser:p(fun parser:satisfy/2, fun is_letter/1)).
 
-string(Str) ->
-    fun(Inp) ->
-	    case Str of
-		[] ->
-		    apply(p(fun parser:succeed/2, []), [Inp]);
-		[X|Xs] ->
-		    apply(using(then(literal(X), string(Xs))
-				, fun({Y,Ys}) -> [Y|Ys] end
-				)
-			  , [Inp])
-	    end
-    end.
+-spec string([char()]) -> parser(char(), [char()]).
+string([]) ->
+    parser:p(fun succeed/2, []);
+string([X|Xs]) ->
+    P = parser:then(parser:literal(X), fn_util:lazy(fun parser:string/1, [Xs])),
+    parser:using(P, fun cons/1).
+
 %%==================================
 
 xthen(P1, P2) ->
@@ -156,7 +150,7 @@ term() ->
 factor() ->
     fun(Inp) ->
 	    apply(
-	      alt(using(number_(), fun(X) -> X end)
+	      alt(using(num(), fun(X) -> X end)
 		  , xthen(literal($(), thenx(expn(), literal($))))
 		 )
 	      , [Inp])
