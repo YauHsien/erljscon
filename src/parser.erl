@@ -10,24 +10,24 @@
 %% Parser constructors
 %% -------------------
 
--spec p(function(), any()) -> parser().
+-spec p(function(), to_parse(A)) -> parser(A, any()).
 p(F, A) ->
     (fn_util:curry(F))(A).
 
--spec p(function()) -> parser().
+-spec p(function()) -> parser(any(), any()).
 p(F) ->
     fn_util:curry(F).
 
 %% Primitive parsers
 %% -----------------
 
--spec succeed(any(), input()) -> [parsing()].
+-spec succeed(to_parse(A), input(B)) -> [parsing(B, A)].
 succeed(V, Inp) -> [#parsing{ parsed= V, rest= Inp }].
 
--spec fail(input()) -> [parsing()].
+-spec fail(input(T)) -> [parsing(any(), T)].
 fail(_Inp) -> [].
 
--spec satisfy(predicate(), input()) -> [parsing()].
+-spec satisfy(predicate(A), input(A)) -> [parsing(A, A)].
 satisfy(_P, []) ->
     fail([]);
 satisfy(P, [X|Xs]) ->
@@ -38,20 +38,20 @@ satisfy(P, [X|Xs]) ->
 	    fail(Xs)
     end.
 
--spec literal(any()) -> parser().
+-spec literal(T) -> parser(T, any()).
 literal(A) ->
     parser:p(fun parser:satisfy/2, fun(X) -> X == A end).
 
 %% Combinators
 %% -----------
 
--spec alt(parser(), parser()) -> parser().
+-spec alt(parser(A, B), parser(A, B)) -> parser(A, B).
 alt(P1, P2) ->
     fun(Inp) ->
 	    apply(P1, [Inp]) ++ apply(P2, [Inp])
     end.
 
--spec then(parser(), parser()) -> parser().
+-spec then(parser(A, B), parser(A, B)) -> parser(A, B).
 then(P1, P2) ->
     fun(Inp) ->
 	    [ #parsing{ parsed= {V1, V2}, rest= Out2 }
@@ -59,9 +59,14 @@ then(P1, P2) ->
 		 #parsing{ parsed= V2, rest= Out2 } <- apply(P2, [Out1]) ]
     end.
 
+-spec test(integer()) -> parsed(string()).
+test(_N) ->
+    ok.
+
+-spec using(parser(A, B), function(B, C)) -> parser(A, C).
 using(P, F) ->
     fun(Inp) ->
-	    [ {apply(F, [V]), Out} || {V, Out} <- apply(P, [Inp]) ]
+	    [ Parsing#parsing{ parsed= F(Parsing#parsing.parsed) } || #parsing{}= Parsing <- P(Inp) ]
     end.
 
 many(P) ->

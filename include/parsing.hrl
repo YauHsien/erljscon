@@ -1,14 +1,17 @@
 -ifndef(__parsing_hrl).
 -define(__parsing_hrl, __parsing_hrl).
 
--type parsed() :: any().
--type input() :: string().
--type predicate() :: fun((any()) -> boolean()).
+-type to_parse(T) :: T.
+-type parsed(T) :: T.
+-type input(T) :: T.
+-type predicate(T) :: fun((T) -> boolean()).
+-type literal(T) :: T.
 
--record(parsing, { parsed :: parsed(),
-		   rest :: input() }).
+-record(parsing, { parsed, rest }).
 
--type parsing() :: #parsing{}.
--type parser() :: fun((input()) -> [parsing()]).
+-type parsing(A, B) :: #parsing{ parsed :: A, rest :: B }.
+-type parser(A, B) :: fun((input(A)) -> [parsing(B, A)]).
+
+-type function(A, B) :: fun((A) -> B).
 
 -endif.
