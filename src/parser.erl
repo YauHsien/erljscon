@@ -132,7 +132,9 @@ string([X|Xs]) ->
     P = parser:then(parser:literal(X), fn_util:lazy(fun parser:string/1, [Xs])),
     parser:using(P, fun cons/1).
 
-%%===================================
+%% Examples
+%% --------
+
 expn() ->
     fun(Inp) ->
 	    apply(
