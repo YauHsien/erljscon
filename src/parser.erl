@@ -94,6 +94,16 @@ thenx(P1, P2) ->
 return(P, V) ->
     parser:using(P, (fn_util:curry(fun const/2))(V)).
 
+-spec any(fun((A) -> parser(B, C)), [A]) -> parser(B, C).
+any(Pg, Inp) ->
+    lists:foldr(fun(X, P1) -> parser:alt(Pg(X), P1) end,
+		parser:p(fun parser:fail/1),
+		Inp).
+
+-spec nibble(parser(char(), A)) -> parser(char(), A).
+nibble(P) ->
+    parser:xthen(white(), parser:thenx(P, white())).
+
 %% Internal functions
 %% ------------------
 
@@ -131,6 +141,13 @@ string([]) ->
 string([X|Xs]) ->
     P = parser:then(parser:literal(X), fn_util:lazy(fun parser:string/1, [Xs])),
     parser:using(P, fun cons/1).
+
+white() ->
+    parser:many(parser:any(fun parser:literal/1, " \t\n")).
+
+-spec symbol([char()]) -> parser(char(), [char()]).
+symbol(S) ->
+    parser:nibble(parser:string(S)).
 
 %% Examples
 %% --------
