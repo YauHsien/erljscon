@@ -143,7 +143,7 @@ string([X|Xs]) ->
     parser:using(P, fun cons/1).
 
 white() ->
-    parser:many(parser:any(fun parser:literal/1, " \t\n")).
+    parser:many(parser:any(fun parser:literal/1, " \t\r\n")).
 
 -spec symbol([char()]) -> parser(char(), [char()]).
 symbol(S) ->

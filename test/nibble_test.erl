@@ -4,9 +4,8 @@
 
 nibble_test() ->
     P = parser:nibble(parser:string("hello")),
-    Input = "
-                 hello
-                      ,world",
+    Input = "  hello
+   ,world",
     V = P(Input),
     ?assertMatch([#parsing{ parsed= "hello", rest= ",world" },
 		  #parsing{ parsed= "hello", rest= " ,world" }|_], V).
