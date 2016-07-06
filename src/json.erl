@@ -30,6 +30,14 @@ parse_elements() ->
 		   ))
     end.
 
+escape($") -> escape1($");
+escape($\\) -> escape1($\\); 
+escape($\/) -> escape1($\/);
+escape($b) -> escape1($b);
+escape($f) -> escape1($f); 
+escape($n) -> escape1($n);
+escape($r) -> escape1($r);
+escape($t) -> escape1($t).
 
-
+escape1(C) -> parser:then(parser:literal($\\), parser:literal(C)).
 
