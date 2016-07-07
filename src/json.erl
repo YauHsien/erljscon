@@ -41,3 +41,36 @@ escape($t) -> escape1($t).
 
 escape1(C) -> parser:then(parser:literal($\\), parser:literal(C)).
 
+hxdigit() ->
+    lists:foldr(fun(Ch, R) -> parser:alt(parser:literal(Ch), R) end,
+		parser:literal($F),
+		[$0, $1, $2, $3, $4, $5, $6, $7, $8, $9,
+		 $a, $b, $c, $d, $e, $f,
+		 $A, $B, $C, $D, $E]).
+
+hxdigits(0) ->
+    parser:p(fun parser:succeed/2, "");
+hxdigits(N) when N > 0 ->
+    parser:using(parser:then(hxdigit(), hxdigits(N-1)),
+		 fun({A,B}) -> [A|B] end).
+
+unicode() ->
+    parser:using(
+      parser:then(parser:literal($\\),
+		  parser:using(
+		    parser:then(parser:alt(parser:literal($u),
+					   parser:literal($U)),
+				hxdigits(4)),
+		    fun({A,B}) -> [A|B] end)
+		 ),
+      fun({A,B}) -> [A|B] end
+     ).
+
+%% -------------------------------------
+%% Internal
+%% -------------------------------------
+
+foldr(_F, Z, []) ->
+    Z;
+foldr(F, Z, [H|T]) ->
+    F(H, foldr(F, Z, T)).
