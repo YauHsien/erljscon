@@ -30,6 +30,12 @@ parse_elements() ->
 		   ))
     end.
 
+escape_sequence() ->
+    lists:foldr(fun(Ch, R) -> parser:alt(escape(Ch), R) end,
+		hxdigit(),
+		[$", $\\, $\/, $b, $f, $n, $r, $t]).
+			 
+
 escape($") -> escape1($");
 escape($\\) -> escape1($\\); 
 escape($\/) -> escape1($\/);
@@ -39,7 +45,11 @@ escape($n) -> escape1($n);
 escape($r) -> escape1($r);
 escape($t) -> escape1($t).
 
-escape1(C) -> parser:then(parser:literal($\\), parser:literal(C)).
+escape1(C) ->
+    parser:using(
+      parser:then(parser:literal($\\), parser:literal(C)),
+      fun({A, B}) -> [A, B] end
+     ).
 
 hxdigit() ->
     lists:foldr(fun(Ch, R) -> parser:alt(parser:literal(Ch), R) end,
@@ -64,6 +74,28 @@ unicode() ->
 		    fun({A,B}) -> [A|B] end)
 		 ),
       fun({A,B}) -> [A|B] end
+     ).
+
+string() ->
+    Append = fun({A, B}) -> lists:append(A, B) end,
+    Quote = parser:using(
+	      parser:literal($"),
+	      fun(Ch) -> [Ch] end
+	     ),
+    parser:using(
+      parser:then(
+	Quote,
+	parser:using(
+	  parser:then(
+	    parser:many(
+	      parser:alt(parser:acceptable_char(), escape_sequence())
+	     ),
+	    Quote
+	   ),
+	  Append
+	 )
+       ),
+      Append
      ).
 
 %% -------------------------------------

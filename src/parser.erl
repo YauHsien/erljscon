@@ -186,13 +186,19 @@ factor() ->
     end.
 %%====================================
 
-non_control_char() ->
+acceptable_char() ->
     fun(Inp) ->
 	    apply(
 	      parser:p(
 		fun parser:satisfy/2,
-		fun(C) -> (C =/= $") and (C =/= $\\) and (C > $\x{1F}) end),
-	    [Inp])
+		fun(C) ->
+			(C =/= $")
+			    andalso (C =/= $\\)
+			    andalso (C > $\x{1F}) %% not control chars
+		end
+	       ),
+	      [Inp]
+	     )
     end.
 
 double_quote() ->
@@ -266,7 +272,7 @@ hex_digit() ->
 char() ->
     fun(Inp) ->
 	    apply(
-	      alt(non_control_char()
+	      alt(acceptable_char()
 		  , alt(using(double_quote(), fun stdlib:cons/1)
 			, alt(using(back_slash(), fun stdlib:cons/1)
 			      , alt(using(slash(), fun stdlib:cons/1)
