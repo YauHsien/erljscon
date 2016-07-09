@@ -98,6 +98,84 @@ string() ->
       Append
      ).
 
+num() ->
+    Cons = fun({A, B}) -> [A|B] end,
+    Append = fun({A, B}) -> lists:append(A, B) end,
+    Ignore = parser:p(fun parser:succeed/2, ""),
+    Sign =
+	parser:alt(
+	  Ignore,
+	  parser:using(parser:literal($-), fun(C) -> [C] end)
+	 ),
+    Integral =
+	parser:alt(
+	  parser:literal($0),
+	  parser:using(
+	    parser:then(
+	      parser:using(parser:digit1_9(), fun(C) -> [C] end),
+	      parser:many(parser:digit())
+	     ),
+	    Cons
+	   )
+	 ),
+    Decimal =
+	parser:alt(
+	  Ignore,
+	  parser:using(
+	    parser:then(
+	      parser:literal($.),
+	      parser:some(parser:digit())
+	     ),
+	    Cons
+	   )
+	 ),
+    Exp =
+	parser:alt(
+	  Ignore,
+	  parser:using(
+	    parser:then(
+	      parser:alt(
+		parser:literal($e),
+		parser:literal($E)
+	       ),
+	      parser:using(
+		parser:then(
+		  parser:alt(
+		    parser:using(parser:literal($+), fun(C) -> [C] end),
+		    parser:alt(
+		      Ignore,
+		      parser:using(parser:literal($-), fun(C) -> [C] end)
+		     )
+		   ),
+		  parser:some(parser:digit())
+		 ),
+		Append
+	       )
+	     ),
+	    Cons
+	   )
+	 ),
+    parser:using(
+      parser:then(
+	Sign,
+	parser:using(
+	  parser:then(
+	    Integral,
+	    parser:using(
+	      parser:then(
+		Decimal,
+		Exp
+	       ),
+	      Append
+	     )
+	   ),
+	  Cons
+	 )
+       ),
+      Append
+     ).
+
+
 %% -------------------------------------
 %% Internal
 %% -------------------------------------

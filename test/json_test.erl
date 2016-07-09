@@ -34,3 +34,16 @@ string_Empty_test() ->
     E = [#parsing{ parsed= "\"\"", rest= "" }],
     ?assertEqual(E, V).
 
+num_test() ->
+    P = json:num(),
+    Inp = "0.31416e2",
+    V = P(Inp),
+    E = [#parsing{ parsed= "0", rest= ".31416e2" },
+	 #parsing{ parsed= "0.31416", rest= "e2" },
+	 #parsing{ parsed= "0.31416e2", rest= "" },
+	 #parsing{ parsed= "0.3141", rest= "6e2" },
+	 #parsing{ parsed= "0.314", rest= "16e2" },
+	 #parsing{ parsed= "0.31", rest= "416e2" },
+	 #parsing{ parsed= "0.3", rest= "1416e2" }
+	],
+    ?assertEqual(E, V).
