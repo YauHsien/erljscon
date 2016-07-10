@@ -32,7 +32,7 @@ parse_elements() ->
 
 escape_sequence() ->
     lists:foldr(fun(Ch, R) -> parser:alt(escape(Ch), R) end,
-		hxdigit(),
+		unicode(),
 		[$", $\\, $\/, $b, $f, $n, $r, $t]).
 			 
 

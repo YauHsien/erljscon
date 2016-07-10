@@ -23,8 +23,7 @@ string_NonEmpty_test() ->
     P = json:string(),
     Inp = "\"hello,world\"",
     V = P(Inp),
-    E1= #parsing{ parsed= "\"hello,world\"", rest= "" },
-    E = [E1, E1, E1, E1],
+    E= [#parsing{ parsed= "\"hello,world\"", rest= "" }],
     ?assertEqual(E, V).
 
 string_Empty_test() ->
