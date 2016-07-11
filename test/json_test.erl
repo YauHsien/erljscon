@@ -46,3 +46,25 @@ num_test() ->
 	 #parsing{ parsed= "0.3", rest= "1416e2" }
 	],
     ?assertEqual(E, V).
+
+true_test() ->
+    P = json:true(),
+    Inp = "true,",
+    V = P(Inp),
+    E = [#parsing{ parsed= "true", rest= "," }],
+    ?assertEqual(E, V).
+
+false_test() ->
+    P = json:false(),
+    Inp = " false,",
+    V = P(Inp),
+    E = [#parsing{ parsed= "false", rest= "," }],
+    ?assertEqual(E, V).
+
+null_test() ->
+    P = json:null(),
+    Inp = "null ,",
+    V = P(Inp),
+    E = [#parsing{ parsed= "null", rest= "," },
+	 #parsing{ parsed= "null", rest= " ," }],
+    ?assertEqual(E, V).
