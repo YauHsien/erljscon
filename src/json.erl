@@ -1,34 +1,41 @@
 -module(json).
 -compile(export_all).
 
-parse_value() ->
+value() ->
     parser:alt(
-      parser:string()
-      , parser:alt(
-	  parser:number()
-	  , parser:alt(
-	      parser:true()
-	      , parser:alt(
-		  parser:false()
-		  , parser:null()
-		  )))).
+      ?MODULE:string(),
+      parser:alt(
+	num(),
+	parser:alt(
+	  object(),
+	  parser:alt(
+	    array(),
+	    parser:alt(
+	      true(),
+	      parser:alt(false(), null())))))).
 
-parse_elements() ->
-    fun() ->
-	      parser:alt(
-		parse_value()
-		, parser:then(
-		    parse_value()
-		    , parser:xthen(
-			parser:skip()
-			, parser:xthen(
-			    parser:literal($,)
-			    , parser:xthen(
-				parser:skip()
-				, parse_elements()
-			       )))
-		   ))
-    end.
+object() ->
+    parser:then(
+      parser:literal(${),
+      parser:alt(
+	parser:literal($)),
+	parser:then(key_value(), parser:many(then_kv())))).
+
+array() ->
+    parser:then(
+      parser:literal($[),
+      parser:then(value(), parser:many(then_value()))).
+
+then_value() ->
+    parser:then(parser:literal($,), value()).
+
+key_value() ->	
+    parser:then(
+      ?MODULE:string(),
+      parser:then(parser:literal(), value())).
+
+then_kv() ->
+    parser:then(parser:literal($,), key_value()).
 
 escape_sequence() ->
     lists:foldr(fun(Ch, R) -> parser:alt(escape(Ch), R) end,
@@ -174,6 +181,15 @@ num() ->
        ),
       Append
      ).
+
+true() ->
+    parser:nibble(parser:string("true")).
+
+false() ->
+    parser:nibble(parser:string("false")).
+
+null() ->
+    parser:nibble(parser:string("null")).
 
 
 %% -------------------------------------
