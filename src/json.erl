@@ -7,32 +7,53 @@ value() ->
       parser:alt(
 	num(),
 	parser:alt(
-	  object(),
+	  fn_util:lazy(fun object/0, []),
 	  parser:alt(
-	    array(),
+	    fn_util:lazy(fun array/0, []),
 	    parser:alt(
 	      true(),
 	      parser:alt(false(), null())))))).
 
 object() ->
-    parser:then(
-      parser:literal(${),
-      parser:alt(
-	parser:literal($)),
-	parser:then(key_value(), parser:many(then_kv())))).
+    parser:using(
+      parser:then(
+	parser:literal(${),
+	parser:alt(
+	  parser:literal($}),
+	  parser:using(
+	    parser:then(key_value(), fn_util:lazy(fun parser:many/1, [then_kv()])),
+	    fun append/1
+	   )
+	 )
+       ),
+      fun cons/1
+     ).
 
 array() ->
-    parser:then(
-      parser:literal($[),
-      parser:then(value(), parser:many(then_value()))).
+    parser:using(
+      parser:then(
+	parser:literal($[),
+	parser:then(value(), fn_util:lazy(fun parser:many/1, [then_value()]))),
+      fun cons/1
+     ).
 
 then_value() ->
     parser:then(parser:literal($,), value()).
 
-key_value() ->	
-    parser:then(
-      ?MODULE:string(),
-      parser:then(parser:literal(), value())).
+key_value() ->
+    parser:using(
+      parser:then(
+	?MODULE:string(),
+	parser:using(
+	  parser:then(
+	    parser:literal($:),
+	    value()
+	   ),
+	  fun cons/1
+	 )
+       ),
+      fun append/1
+     ).
 
 then_kv() ->
     parser:then(parser:literal($,), key_value()).
@@ -200,3 +221,9 @@ foldr(_F, Z, []) ->
     Z;
 foldr(F, Z, [H|T]) ->
     F(H, foldr(F, Z, T)).
+
+cons({A, B}) ->
+    [A|B].
+
+append({A, B}) ->
+    lists:append(A, B).

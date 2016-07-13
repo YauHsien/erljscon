@@ -46,3 +46,12 @@ num_test() ->
 	 #parsing{ parsed= "0.3", rest= "1416e2" }
 	],
     ?assertEqual(E, V).
+
+key_value_test() ->
+    P = json:object(),
+    Inp = "{\"hello\":\"world\"",
+    V = P(Inp),
+    E = [#parsing{ parsed= "{\"hello\":\"world\"", rest= "" }],
+    ?assertEqual(E, V).
+
+	
