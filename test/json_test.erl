@@ -68,3 +68,10 @@ null_test() ->
     E = [#parsing{ parsed= "null", rest= "," },
 	 #parsing{ parsed= "null", rest= " ," }],
     ?assertEqual(E, V).
+
+key_value_test() ->
+    P = json:object(),
+    Inp = "{\"hello\":\"world\"",
+    V = P(Inp),
+    E = [#parsing{ parsed= "{\"hello\":\"world\"", rest= "" }],
+    ?assertEqual(E, V).
