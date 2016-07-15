@@ -1,34 +1,104 @@
 -module(json).
 -compile(export_all).
 
-parse_value() ->
+value() ->
     parser:alt(
-      parser:string()
-      , parser:alt(
-	  parser:number()
-	  , parser:alt(
-	      parser:true()
-	      , parser:alt(
-		  parser:false()
-		  , parser:null()
-		  )))).
+      ?MODULE:string(),
+      parser:alt(
+	num(),
+	parser:alt(
+	  fn_util:lazy(fun object/0, []),
+	  parser:alt(
+	    fn_util:lazy(fun array/0, []),
+	    parser:alt(
+	      true(),
+	      parser:alt(false(), null())))))).
 
-parse_elements() ->
-    fun() ->
-	      parser:alt(
-		parse_value()
-		, parser:then(
-		    parse_value()
-		    , parser:xthen(
-			parser:skip()
-			, parser:xthen(
-			    parser:literal($,)
-			    , parser:xthen(
-				parser:skip()
-				, parse_elements()
-			       )))
-		   ))
-    end.
+object() ->
+    Ignore = parser:p(fun parser:succeed/2, [""]),
+    parser:using(
+      parser:then(
+	parser:literal(${),
+	parser:using(
+	  parser:then(
+	    parser:alt(
+	      parser:using(
+		parser:then(
+		  key_value(),
+		  parser:alt(parser:many(then_kv()), Ignore)
+		 ),
+		fun append/1
+	       ),
+	      Ignore
+	     ),
+	    parser:literal($})
+	   ),
+	  fun({A, B}) -> lists:append(A, [B]) end
+	 )
+       ),
+      fun cons/1
+     ).
+
+array() ->
+    Ignore = parser:p(fun parser:succeed/2, [""]),
+    parser:using(
+      parser:then(
+	parser:literal($[),
+	parser:using(
+	  parser:then(
+	    parser:alt(
+	      parser:using(
+		parser:then(
+		  value(),
+		  parser:alt(then_value(), Ignore)
+		 ),
+		fun append/1
+	       ),
+	      Ignore
+	     ),
+	    parser:literal($])
+	   ),
+	  fun({A, B}) -> lists:append(A, [B]) end
+	 )
+       ),
+      fun cons/1
+     ).
+
+then_value() ->
+    parser:using(
+      parser:then(parser:literal($,), value()),
+      fun cons/1
+     ).
+
+key_value() ->
+    parser:using(
+      parser:then(
+	?MODULE:string(),
+	parser:using(
+	  parser:then(
+	    parser:literal($:),
+	    value()
+	   ),
+	  fun cons/1
+	 )
+       ),
+      fun append/1
+     ).
+
+then_kv() ->
+    parser:alt(
+      parser:using(
+	parser:then(
+	  parser:using(
+	    parser:then(parser:literal($,), key_value()),
+	    fun cons/1
+	   ),
+	  fn_util:lazy(fun then_kv/0, [])
+	 ),
+	fun append/1
+       ),
+      parser:p(fun parser:succeed/2, [""])
+     ).
 
 escape_sequence() ->
     lists:foldr(fun(Ch, R) -> parser:alt(escape(Ch), R) end,
@@ -193,3 +263,9 @@ foldr(_F, Z, []) ->
     Z;
 foldr(F, Z, [H|T]) ->
     F(H, foldr(F, Z, T)).
+
+cons({A, B}) ->
+    [A|B].
+
+append({A, B}) ->
+    lists:append(A, B).
