@@ -73,6 +73,21 @@ object_test() ->
     P = json:object(),
     Inp = "{\"hello\":1,\"world\":2}",
     V = P(Inp),
+io:fwrite("~n~p~n", [V]),
     E = [#parsing{ parsed = "{\"hello\":1,\"world\":2}", rest= ""}],
     ?assertEqual(E, V).
 	
+key_value_test() ->
+    P = json:key_value(),
+    Inp = "\"hello\":\"world\"",
+    V = P(Inp),
+    E = [#parsing{ parsed= "\"hello\":\"world\"", rest= "" }],
+    ?assertEqual(E, V).
+
+key_value_num_test() ->
+    P = json:key_value(),
+    Inp = "\"hello\":1",
+    V = P(Inp),
+    E = [#parsing{ parsed= "\"hello\":1", rest= "" }],
+io:fwrite("~n~p~n", [V]),
+    ?assertEqual(E, V).
