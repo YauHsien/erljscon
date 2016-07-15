@@ -11,3 +11,11 @@ num_test() ->
 	 #parsing{ parsed= "1", rest= "23hello,world" }],
     ?assertEqual(E, V).
 
+colon_num_test() ->
+    P = parser:then(parser:literal($:), parser:num()),
+    Inp = ":1",
+    V = P(Inp),
+    E = [#parsing{ parsed= {$:, "1"}, rest= "" }],
+    ?assertEqual(E, V).
+
+
