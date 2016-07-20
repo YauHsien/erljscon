@@ -2,103 +2,39 @@
 -compile(export_all).
 
 value() ->
-    parser:alt(
-      ?MODULE:string(),
-      parser:alt(
-	num(),
-	parser:alt(
-	  fn_util:lazy(fun object/0, []),
-	  parser:alt(
-	    fn_util:lazy(fun array/0, []),
-	    parser:alt(
-	      true(),
-	      parser:alt(false(), null())))))).
+    parser:alt(?MODULE:string(),
+	       parser:alt(num(),
+			  parser:alt(fn_util:lazy(fun object/0, []),
+				     parser:alt(fn_util:lazy(fun array/0, []),
+						parser:alt(true(),
+							   parser:alt(false(),
+								      null())))))).
 
 object() ->
     Ignore = parser:p(fun parser:succeed/2, [""]),
-    parser:using(
-      parser:then(
-	parser:literal(${),
-	parser:using(
-	  parser:then(
-	    parser:alt(
-	      parser:using(
-		parser:then(
-		  key_value(),
-		  parser:alt(parser:many(then_kv()), Ignore)
-		 ),
-		fun append/1
-	       ),
-	      Ignore
-	     ),
-	    parser:literal($})
-	   ),
-	  fun({A, B}) -> lists:append(A, [B]) end
-	 )
-       ),
-      fun cons/1
-     ).
+    parser:then(parser:literal(${),
+		parser:then(parser:alt(parser:then(key_value(),
+						   parser:alt(parser:many(then_kv()), Ignore)),
+				       Ignore),
+			    parser:literal($}))).
 
 array() ->
     Ignore = parser:p(fun parser:succeed/2, [""]),
-    parser:using(
-      parser:then(
-	parser:literal($[),
-	parser:using(
-	  parser:then(
-	    parser:alt(
-	      parser:using(
-		parser:then(
-		  value(),
-		  parser:alt(then_value(), Ignore)
-		 ),
-		fun append/1
-	       ),
-	      Ignore
-	     ),
-	    parser:literal($])
-	   ),
-	  fun({A, B}) -> lists:append(A, [B]) end
-	 )
-       ),
-      fun cons/1
-     ).
+      parser:then(parser:literal($[),
+		  parser:then(parser:alt(parser:then(value(),
+						     parser:alt(then_value(), Ignore)),
+					 Ignore),
+			      parser:literal($]))).
 
 then_value() ->
-    parser:using(
-      parser:then(parser:literal($,), value()),
-      fun cons/1
-     ).
+    parser:then(parser:literal($,), value()).
 
 key_value() ->
-    parser:using(
-      parser:then(
-	?MODULE:string(),
-	parser:using(
-	  parser:then(
-	    parser:literal($:),
-	    value()
-	   ),
-	  fun cons/1
-	 )
-       ),
-      fun append/1
-     ).
+    parser:then(?MODULE:string(),
+		parser:then(parser:literal($:), value())).
 
 then_kv() ->
-    parser:alt(
-      parser:using(
-	parser:then(
-	  parser:using(
-	    parser:then(parser:literal($,), key_value()),
-	    fun cons/1
-	   ),
-	  fn_util:lazy(fun then_kv/0, [])
-	 ),
-	fun append/1
-       ),
-      parser:p(fun parser:succeed/2, [""])
-     ).
+    parser:then(parser:literal($,), key_value()).
 
 escape_sequence() ->
     lists:foldr(fun(Ch, R) -> parser:alt(escape(Ch), R) end,
@@ -152,14 +88,14 @@ string() ->
 	      parser:literal($"),
 	      fun(Ch) -> [Ch] end
 	     ),
+    Ignore = parser:p(fun parser:succeed/2, ""),
     parser:using(
       parser:then(
 	Quote,
 	parser:using(
 	  parser:then(
-	    parser:many(
-	      parser:alt(parser:acceptable_char(), escape_sequence())
-	     ),
+	    parser:alt(parser:some(parser:alt(parser:acceptable_char(), escape_sequence())),
+		       Ignore),
 	    Quote
 	   ),
 	  Append

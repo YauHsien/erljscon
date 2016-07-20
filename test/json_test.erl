@@ -35,15 +35,15 @@ string_Empty_test() ->
 
 num_test() ->
     P = json:num(),
-    Inp = "0.31416e2",
+    Inp = "0.31416e2a",
     V = P(Inp),
-    E = [#parsing{ parsed= "0", rest= ".31416e2" },
-	 #parsing{ parsed= "0.31416", rest= "e2" },
-	 #parsing{ parsed= "0.31416e2", rest= "" },
-	 #parsing{ parsed= "0.3141", rest= "6e2" },
-	 #parsing{ parsed= "0.314", rest= "16e2" },
-	 #parsing{ parsed= "0.31", rest= "416e2" },
-	 #parsing{ parsed= "0.3", rest= "1416e2" }
+    E = [#parsing{ parsed= "0", rest= ".31416e2a" },
+	 #parsing{ parsed= "0.31416", rest= "e2a" },
+	 #parsing{ parsed= "0.31416e2", rest= "a" },
+	 #parsing{ parsed= "0.3141", rest= "6e2a" },
+	 #parsing{ parsed= "0.314", rest= "16e2a" },
+	 #parsing{ parsed= "0.31", rest= "416e2a" },
+	 #parsing{ parsed= "0.3", rest= "1416e2a" }
 	],
     ?assertEqual(E, V).
 
@@ -69,24 +69,24 @@ null_test() ->
 	 #parsing{ parsed= "null", rest= " ," }],
     ?assertEqual(E, V).
 
-object_test() ->
-    P = json:object(),
-    Inp = "{\"hello\":1,\"world\":2}",
-    V = P(Inp),
-io:fwrite("~n~p~n", [V]),
-    E = [#parsing{ parsed = "{\"hello\":1,\"world\":2}", rest= ""}],
-    ?assertEqual(E, V).
-	
-%% key_value_test() ->
-%%     P = json:key_value(),
-%%     Inp = "\"hello\":\"world\"",
+%% object_test() ->
+%%     P = json:object(),
+%%     Inp = "{\"hello\":1,\"world\":2}",
 %%     V = P(Inp),
-%%     E = [#parsing{ parsed= "\"hello\":\"world\"", rest= "" }],
+%%     E = [#parsing{ parsed= {${, {"\"hello\"", {$:, {"1", {$,, {"\"world\"", {$:, {"2", $}}}}}}}}},
+%% 		   rest= "" }],
 %%     ?assertEqual(E, V).
+	
+key_value_test() ->
+    P = json:key_value(),
+    Inp = "\"hello\":\"world\"",
+    V = P(Inp),
+    E = [#parsing{ parsed= {"\"hello\"", {$:, "\"world\""}}, rest= "" }],
+    ?assertEqual(E, V).
 
 %% key_value_num_test() ->
 %%     P = json:key_value(),
 %%     Inp = "\"hello\":1",
 %%     V = P(Inp),
-%%     E = [#parsing{ parsed= "\"hello\":1", rest= "" }],
+%%     E = [#parsing{ parsed= {"\"hello\"", {$:, "1"}}, rest= "" }],
 %%     ?assertEqual(E, V).
