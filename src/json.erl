@@ -20,11 +20,10 @@ object() ->
 
 array() ->
     Ignore = parser:p(fun parser:succeed/2, [""]),
-      parser:then(parser:literal($[),
-		  parser:then(parser:alt(parser:then(value(),
-						     parser:alt(then_value(), Ignore)),
-					 Ignore),
-			      parser:literal($]))).
+    parser:then(parser:literal($[),
+		parser:alt(parser:then(value(),
+				       parser:alt(parser:some(then_value()), Ignore)),
+			   parser:literal($]))).
 
 then_value() ->
     parser:then(parser:literal($,), value()).
