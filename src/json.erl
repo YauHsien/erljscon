@@ -1,5 +1,6 @@
 -module(json).
 -compile(export_all).
+-include("../include/json.hrl").
 
 value() ->
     parser:alt(?MODULE:string(),
@@ -20,20 +21,23 @@ object() ->
 
 array() ->
     Ignore = parser:p(fun parser:succeed/2, [""]),
-    parser:then(parser:literal($[),
-		parser:alt(parser:then(value(),
-				       parser:alt(parser:some(then_value()), Ignore)),
-			   parser:literal($]))).
+    parser:xthen(parser:literal($[),
+		 parser:thenx(
+		   parser:using(parser:then(value(),
+					    parser:alt(parser:some(then_value()), Ignore)),
+				fun cons/1),
+		   parser:literal($]))).
 
 then_value() ->
-    parser:then(parser:literal($,), value()).
+    parser:xthen(parser:literal($,), value()).
 
 key_value() ->
     parser:then(?MODULE:string(),
-		parser:then(parser:literal($:), value())).
+		parser:xthen(parser:literal($:), value())).
 
 then_kv() ->
-    parser:then(parser:literal($,), key_value()).
+    parser:xthen(parser:literal($,), key_value()).
+	      
 
 escape_sequence() ->
     lists:foldr(fun(Ch, R) -> parser:alt(escape(Ch), R) end,
