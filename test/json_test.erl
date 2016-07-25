@@ -1,6 +1,7 @@
 -module(json_test).
 -include_lib("eunit/include/eunit.hrl").
 -include("../include/parsing.hrl").
+-include("../include/json.hrl").
 
 unicode_test() ->
     P = json:unicode(),
@@ -85,14 +86,14 @@ key_value_num_test() ->
 	 #parsing{ parsed= {"\"hello\"", "3.1"}, rest= "4" }],
     ?assertEqual(E, V).
 
-%% object_test() ->
-%%     P = json:object(),
-%%     Inp = "{\"hello\":1,\"world\":2}",
-%%     V = P(Inp),
-%% io:fwrite("~p~n", [V]),
-%%     E = [#parsing{ parsed= {${, {"\"hello\"", {$:, {"1", {$,, {"\"world\"", {$:, {"2", $}}}}}}}}},
-%% 		   rest= "" }],
-%%     ?assertEqual(E, V).
+object_test() ->
+    P = json:object(),
+    Inp = "{\"hello\":1,\"world\":2}",
+    V = P(Inp),
+io:fwrite("~p~n", [V]),
+    E = [#parsing{ parsed= #object{ elements= [{"\"hello\"", "1"}, {"\"world\"", "2"}] },
+		   rest= "" }],
+    ?assertEqual(E, V).
 	
 array_test() ->
     P = json:array(),

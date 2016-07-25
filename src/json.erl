@@ -13,11 +13,17 @@ value() ->
 
 object() ->
     Ignore = parser:p(fun parser:succeed/2, [""]),
-    parser:then(parser:literal(${),
-		parser:then(parser:alt(parser:then(key_value(),
-						   parser:alt(parser:many(then_kv()), Ignore)),
-				       Ignore),
-			    parser:literal($}))).
+    parser:using(
+      parser:xthen(parser:literal(${),
+		   parser:thenx(parser:alt(
+				  parser:using(
+				    parser:then(key_value(),
+						parser:alt(parser:many(then_kv()), Ignore)),
+				    fun cons/1),
+				  Ignore),
+				parser:literal($}))),
+      fun(Elements) -> #object{ elements= Elements } end).
+	       
 
 array() ->
     Ignore = parser:p(fun parser:succeed/2, [""]),
