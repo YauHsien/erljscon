@@ -2,6 +2,12 @@
 -compile(export_all).
 -include("../include/json.hrl").
 
+json() ->
+    parser:alt(fn_util:lazy(fun object/0, []),
+	       parser:alt(fn_util:lazy(fun array/0, []),
+			  fn_util:lazy(fun value/0, []))).
+      
+
 value() ->
     parser:alt(?MODULE:string(),
 	       parser:alt(num(),

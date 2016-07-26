@@ -103,3 +103,45 @@ array_test() ->
 		   rest= "" }],
     ?assertEqual(E, V).
 
+%% example_test() ->
+%%     P = json:json(),
+%%     Inp = "{
+%%     \"glossary\": {
+%%         \"title\": \"example glossary\",
+%% 		\"GlossDiv\": {
+%%             \"title\": \"S\",
+%% 			\"GlossList\": {
+%%                 \"GlossEntry\": {
+%%                     \"ID\": \"SGML\",
+%% 					\"SortAs\": \"SGML\",
+%% 					\"GlossTerm\": \"Standard Generalized Markup Language\",
+%% 					\"Acronym\": \"SGML\",
+%% 					\"Abbrev\": \"ISO 8879:1986\",
+%% 					\"GlossDef\": {
+%%                         \"para\": \"A meta-markup language, used to create markup languages such as DocBook.\",
+%% 						\"GlossSeeAlso\": [\"GML\", \"XML\"]
+%%                     },
+%% 					\"GlossSee\": \"markup\"
+%%                 }
+%%             }
+%%         }
+%%     }
+%% }",
+%%     GlossDef = #object{ elements= [{ "\"para\"", "\"A meta-markup langauge, used to create markup langugages such as DockBook.\"" },
+%% 				   { "\"GlossSeeAlso\"", ["\"GML\"", "\"XML\""] }] },
+%%     GlossEntry = #object{ elements= [{"\"ID\"", "\"SGML\""},
+%% 				     {"\"SortAs\"", "\"SGML\""},
+%% 				     {"\"GlossTerm\"", "\"Standard Generalized Markup Language\""},
+%% 				     {"\"Acronym\"", "\"SGML\""},
+%% 				     {"\"Abbrev\"", "\"ISO 8879:1986\""},
+%% 				     {"\"GlossDef\"", GlossDef},
+%% 				     {"\"GlossSee\"", "\"markup\""}] },
+%%     GlossList = #object{ elements= [{ "\"GlossEntry\"", GlossEntry }] },
+%%     GlossDiv = #object{ elements= [{ "\"title\"", "\"S\"" },
+%% 				   { "\"GlossList\"", GlossList }] },
+%%     Glossary = #object{ elements= [{ "\"title\"", "\"example glossary\"" },
+%% 				   { "\"GlossDiv\"", GlossDiv }] },
+%%     Obj = #object{ elements= [{ "\"glossary\"", Glossary }] },
+%%     V = P(Inp),
+%%     E = [#parsing{ parsed= Obj, rest= "" }],
+%%     ?assertEqual(E, V).
