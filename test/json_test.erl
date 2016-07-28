@@ -28,10 +28,11 @@ string_NonEmpty_test() ->
     ?assertEqual(E, V).
 
 string_Empty_test() ->
-    P = json:string(),
-    Inp = "\"\"",
+    P = parser:nibble(json:string()),
+    Inp = "   \"\" ",
     V = P(Inp),
-    E = [#parsing{ parsed= "\"\"", rest= "" }],
+    E = [#parsing{ parsed= "\"\"", rest= "" },
+	 #parsing{ parsed= "\"\"", rest= " " }],
     ?assertEqual(E, V).
 
 num_test() ->
