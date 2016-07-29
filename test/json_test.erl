@@ -21,10 +21,11 @@ escape_sequence_test() ->
     ?assertEqual(E, V).
 
 string_NonEmpty_test() ->
-    P = json:string(),
-    Inp = "\"hello,world\"",
+    P = parser:nibble(json:string()),
+    Inp = "   \"hello,world\" ",
     V = P(Inp),
-    E= [#parsing{ parsed= "\"hello,world\"", rest= "" }],
+    E= [#parsing{ parsed= "\"hello,world\"", rest= "" },
+	#parsing{ parsed= "\"hello,world\"", rest= " " }],
     ?assertEqual(E, V).
 
 string_Empty_test() ->
