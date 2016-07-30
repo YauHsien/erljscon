@@ -53,7 +53,7 @@ num_test() ->
 
 true_test() ->
     P = json:true(),
-    Inp = "true,",
+    Inp = "  true,",
     V = P(Inp),
     E = [#parsing{ parsed= "true", rest= "," }],
     ?assertEqual(E, V).
