@@ -45,7 +45,7 @@ then_value() ->
 
 key_value() ->
     parser:then(parser:nibble(?MODULE:string()),
-		parser:xthen(parser:nibble(parser:literal($:)), value())).
+		parser:xthen(parser:nibble(parser:literal($:)), parser:nibble(value()))).
 
 then_kv() ->
     parser:xthen(parser:literal($,), key_value()).

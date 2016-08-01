@@ -75,9 +75,12 @@ null_test() ->
 
 key_value_test() ->
     P = json:key_value(),
-    Inp = " \"hello\": \"world\"",
+    Inp = "\"hello\" : \"world\"",
     V = P(Inp),
-    E = [#parsing{ parsed= {"\"hello\"", "\"world\""}, rest= "" }],
+    E = [#parsing{ parsed= {"\"hello\"", "\"world\""}, rest= "" },
+	 #parsing{ parsed= {"\"hello\"", "\"world\""}, rest= "" },
+	 #parsing{ parsed= {"\"hello\"", "\"world\""}, rest= "" },
+	 #parsing{ parsed= {"\"hello\"", "\"world\""}, rest= "" }],
     ?assertEqual(E, V).
 
 key_value_num_test() ->
