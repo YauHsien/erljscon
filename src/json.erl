@@ -20,7 +20,7 @@ value() ->
 object() ->
     Ignore = parser:p(fun parser:succeed/2, [""]),
     parser:using(
-      parser:xthen(parser:literal(${),
+      parser:xthen(parser:nibble(parser:literal(${)),
 		   parser:thenx(parser:alt(
 				  parser:using(
 				    parser:then(key_value(),

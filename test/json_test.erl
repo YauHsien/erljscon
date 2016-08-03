@@ -94,11 +94,10 @@ key_value_num_test() ->
 
 object_test() ->
     P = json:object(),
-    Inp = "{\"hello\":1,\"world\":2}",
+    Inp = " { \"hello\":1,\"world\":2}",
     V = P(Inp),
-io:fwrite("~p~n", [V]),
-    E = [#parsing{ parsed= #object{ elements= [{"\"hello\"", "1"}, {"\"world\"", "2"}] },
-		   rest= "" }],
+    E = [#parsing{ parsed= #object{ elements= [{"\"hello\"", "1"}, {"\"world\"", "2"}] }, rest= "" },
+	 #parsing{ parsed= #object{ elements= [{"\"hello\"", "1"}, {"\"world\"", "2"}] }, rest= "" }],
     ?assertEqual(E, V).
 	
 array_test() ->
