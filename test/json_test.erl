@@ -94,7 +94,7 @@ key_value_num_test() ->
 
 object_test() ->
     P = json:object(),
-    Inp = " { \"hello\":1,\"world\":2}",
+    Inp = "{\"hello\":1,\"world\":2 }",
     V = P(Inp),
     E = [#parsing{ parsed= #object{ elements= [{"\"hello\"", "1"}, {"\"world\"", "2"}] }, rest= "" },
 	 #parsing{ parsed= #object{ elements= [{"\"hello\"", "1"}, {"\"world\"", "2"}] }, rest= "" }],

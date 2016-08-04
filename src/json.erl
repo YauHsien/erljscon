@@ -27,7 +27,7 @@ object() ->
 						parser:alt(parser:many(then_kv()), Ignore)),
 				    fun cons/1),
 				  Ignore),
-				parser:literal($}))),
+				parser:nibble(parser:literal($})))),
       fun(Elements) -> #object{ elements= Elements } end).
 	       
 
