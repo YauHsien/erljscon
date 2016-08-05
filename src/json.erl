@@ -33,7 +33,7 @@ object() ->
 
 array() ->
     Ignore = parser:p(fun parser:succeed/2, [""]),
-    parser:xthen(parser:literal($[),
+    parser:xthen(parser:nibble(parser:literal($[)),
 		 parser:thenx(
 		   parser:using(parser:then(value(),
 					    parser:alt(parser:some(then_value()), Ignore)),
