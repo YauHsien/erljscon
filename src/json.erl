@@ -38,7 +38,7 @@ array() ->
 		   parser:using(parser:then(value(),
 					    parser:alt(parser:some(then_value()), Ignore)),
 				fun cons/1),
-		   parser:literal($]))).
+		   parser:nibble(parser:literal($])))).
 
 then_value() ->
     parser:xthen(parser:literal($,), value()).
