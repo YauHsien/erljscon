@@ -102,7 +102,7 @@ object_test() ->
 	
 array_test() ->
     P = json:array(),
-    Inp = "  [\"hello\",\"world\",1,2,3 ]",
+    Inp = "  [\"hello\" ,\"world\",1,2,3 ]",
     V = P(Inp),
     E = [#parsing{ parsed= ["\"hello\"", "\"world\"", "1", "2", "3"],
 		   rest= "" }],
