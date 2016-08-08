@@ -92,17 +92,17 @@ key_value_num_test() ->
 	 #parsing{ parsed= {"\"hello\"", "3.1"}, rest= "4" }],
     ?assertEqual(E, V).
 
-object_test() ->
-    P = json:object(),
-    Inp = "{\"hello\":1,\"world\":2 }",
-    V = P(Inp),
-    E = [#parsing{ parsed= #object{ elements= [{"\"hello\"", "1"}, {"\"world\"", "2"}] }, rest= "" },
-	 #parsing{ parsed= #object{ elements= [{"\"hello\"", "1"}, {"\"world\"", "2"}] }, rest= "" }],
-    ?assertEqual(E, V).
+%% object_test() ->
+%%     P = json:object(),
+%%     Inp = " {\"hello\": 1 ,\"world\":2 }",
+%%     V = P(Inp),
+%%     E = [#parsing{ parsed= #object{ elements= [{"\"hello\"", "1"}, {"\"world\"", "2"}] }, rest= "" },
+%% 	 #parsing{ parsed= #object{ elements= [{"\"hello\"", "1"}, {"\"world\"", "2"}] }, rest= "" }],
+%%     ?assertEqual(E, V).
 	
 array_test() ->
     P = json:array(),
-    Inp = "  [\"hello\" ,\"world\",1,2,3 ]",
+    Inp = "   [\"hello\",\"world\",1,2,3]",
     V = P(Inp),
     E = [#parsing{ parsed= ["\"hello\"", "\"world\"", "1", "2", "3"],
 		   rest= "" }],

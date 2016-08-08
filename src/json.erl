@@ -33,15 +33,18 @@ object() ->
 
 array() ->
     Ignore = parser:p(fun parser:succeed/2, [""]),
-    parser:xthen(parser:nibble(parser:literal($[)),
-		 parser:thenx(
-		   parser:using(parser:then(value(),
-					    parser:alt(parser:some(then_value()), Ignore)),
-				fun cons/1),
-		   parser:nibble(parser:literal($])))).
+    parser:nibble(
+      parser:xthen(parser:literal($[),
+		   parser:thenx(
+		     parser:nibble(
+		       parser:alt(parser:using(parser:then(value(),
+							   parser:nibble(parser:some(then_value()))),
+					       fun cons/1),
+				  Ignore)),
+		     parser:nibble(parser:literal($]))))).
 
 then_value() ->
-    parser:xthen(parser:nibble(parser:literal($,)), value()).
+    parser:xthen(parser:literal($,), parser:nibble(value())).
 
 key_value() ->
     parser:then(parser:nibble(?MODULE:string()),
