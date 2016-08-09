@@ -18,16 +18,25 @@ value() ->
 								      null())))))).
 
 object() ->
+    Cons = fun({A, B}) -> [A|B] end,
+    Append = fun({A, B}) -> lists:append(A, B) end,
     Ignore = parser:p(fun parser:succeed/2, [""]),
     parser:using(
-      parser:xthen(parser:nibble(parser:literal(${)),
-		   parser:thenx(parser:alt(
-				  parser:using(
-				    parser:then(key_value(),
-						parser:alt(parser:many(then_kv()), Ignore)),
-				    fun cons/1),
-				  Ignore),
-				parser:nibble(parser:literal($})))),
+      parser:nibble(
+	parser:xthen(parser:literal(${),
+		     parser:using(
+		       parser:nibble(
+			 parser:then(parser:alt(
+				       Ignore,
+				       parser:using(
+					 parser:nibble(
+					   parser:then(key_value(),
+						       parser:alt(parser:many(then_kv()), Ignore))),
+					 fun cons/1)),
+				     parser:nibble(
+				       parser:xthen(parser:literal($}), Ignore))
+				    )),
+		       Append))),
       fun(Elements) -> #object{ elements= Elements } end).
 	       
 

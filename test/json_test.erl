@@ -96,8 +96,8 @@ key_value_num_test() ->
 %%     P = json:object(),
 %%     Inp = " {\"hello\": 1 ,\"world\":2 }",
 %%     V = P(Inp),
-%%     E = [#parsing{ parsed= #object{ elements= [{"\"hello\"", "1"}, {"\"world\"", "2"}] }, rest= "" },
-%% 	 #parsing{ parsed= #object{ elements= [{"\"hello\"", "1"}, {"\"world\"", "2"}] }, rest= "" }],
+%%     E = [#parsing{ parsed= #object{ elements= [{"\"hello\"", "1"}, {"\"world\"", "2"}] }, rest= "" }],
+%% io:fwrite("~p~n", [V]),
 %%     ?assertEqual(E, V).
 	
 array_test() ->
