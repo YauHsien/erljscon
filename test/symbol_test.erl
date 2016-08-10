@@ -3,12 +3,9 @@
 -include("../include/parsing.hrl").
 
 symbol_test() ->
-    P = parser:symbol("hi"),
+    P = parser:then(parser:symbol("hi"), parser:symbol("there")),
     Input = "  hi   there",
     V = P(Input),
-    E = [#parsing{ parsed= "hi", rest= "there" },
-	 #parsing{ parsed= "hi", rest= " there" },
-	 #parsing{ parsed= "hi", rest= "  there" },
-	 #parsing{ parsed= "hi", rest= "   there" }],
-    ?assertEqual(E, V).
+    E = #parsing{ parsed= {"hi", "there"}, rest= "" },
+    ?assertMatch([E|_], V).
 
