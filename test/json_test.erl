@@ -20,21 +20,21 @@ escape_sequence_test() ->
     E = [#parsing{ parsed= {"hello", "\\n"}, rest= "" }],
     ?assertEqual(E, V).
 
-string_NonEmpty_test() ->
-    P = parser:nibble(json:string()),
-    Inp = "   \"hello,world\" ",
-    V = P(Inp),
-    E= [#parsing{ parsed= "\"hello,world\"", rest= "" },
-	#parsing{ parsed= "\"hello,world\"", rest= " " }],
-    ?assertEqual(E, V).
+%% string_NonEmpty_test() ->
+%%     P = parser:nibble(json:string()),
+%%     Inp = "   \"hello,world\" ",
+%%     V = P(Inp),
+%%     E= [#parsing{ parsed= "\"hello,world\"", rest= "" },
+%% 	#parsing{ parsed= "\"hello,world\"", rest= " " }],
+%%     ?assertEqual(E, V).
 
-string_Empty_test() ->
-    P = parser:nibble(json:string()),
-    Inp = "   \"\" ",
-    V = P(Inp),
-    E = [#parsing{ parsed= "\"\"", rest= "" },
-	 #parsing{ parsed= "\"\"", rest= " " }],
-    ?assertEqual(E, V).
+%% string_Empty_test() ->
+%%     P = parser:nibble(json:string()),
+%%     Inp = "   \"\" ",
+%%     V = P(Inp),
+%%     E = [#parsing{ parsed= "\"\"", rest= "" },
+%% 	 #parsing{ parsed= "\"\"", rest= " " }],
+%%     ?assertEqual(E, V).
 
 num_test() ->
     P = parser:nibble(json:num()),
@@ -75,12 +75,9 @@ null_test() ->
 
 key_value_test() ->
     P = json:key_value(),
-    Inp = "\"hello\" : \"world\"",
+    Inp = "\"hello\":\"world\"",
     V = P(Inp),
-    E = [#parsing{ parsed= {"\"hello\"", "\"world\""}, rest= "" },
-	 #parsing{ parsed= {"\"hello\"", "\"world\""}, rest= "" },
-	 #parsing{ parsed= {"\"hello\"", "\"world\""}, rest= "" },
-	 #parsing{ parsed= {"\"hello\"", "\"world\""}, rest= "" }],
+    E = [#parsing{ parsed= {"\"hello\"", "\"world\""}, rest= "" }],
     ?assertEqual(E, V).
 
 key_value_num_test() ->
@@ -94,7 +91,7 @@ key_value_num_test() ->
 
 %% object_test() ->
 %%     P = json:object(),
-%%     Inp = " {\"hello\": 1 ,\"world\":2 }",
+%%     Inp = "  {   \"hello\":1,\"world\":2}",
 %%     V = P(Inp),
 %%     E = [#parsing{ parsed= #object{ elements= [{"\"hello\"", "1"}, {"\"world\"", "2"}] }, rest= "" }],
 %% io:fwrite("~p~n", [V]),

@@ -21,22 +21,36 @@ object() ->
     Cons = fun({A, B}) -> [A|B] end,
     Append = fun({A, B}) -> lists:append(A, B) end,
     Ignore = parser:p(fun parser:succeed/2, [""]),
+    Id = fun(X) -> X end,
     parser:using(
       parser:nibble(
 	parser:xthen(parser:literal(${),
 		     parser:using(
 		       parser:nibble(
-			 parser:then(parser:alt(
-				       Ignore,
-				       parser:using(
-					 parser:nibble(
-					   parser:then(key_value(),
-						       parser:alt(parser:many(then_kv()), Ignore))),
-					 fun cons/1)),
-				     parser:nibble(
-				       parser:xthen(parser:literal($}), Ignore))
-				    )),
-		       Append))),
+			 parser:thenx(
+			   parser:alt(Ignore,
+				      parser:using(
+					parser:nibble(
+					  parser:then(key_value(),
+						      parser:nibble(
+							parser:some(then_kv())))),
+					Cons)),
+			   parser:literal($})
+			  )),
+		       Id))),
+		     %% parser:using(
+		     %%   parser:nibble(
+		     %% 	 parser:then(parser:alt(
+		     %% 		       Ignore,
+		     %% 		       parser:using(
+		     %% 			 parser:nibble(
+		     %% 			   parser:then(key_value(),
+		     %% 				       parser:alt(parser:many(then_kv()), Ignore))),
+		     %% 			 fun cons/1)),
+		     %% 		     parser:nibble(
+		     %% 		       parser:xthen(parser:literal($}), Ignore))
+		     %% 		    )),
+		     %%   Append))),
       fun(Elements) -> #object{ elements= Elements } end).
 	       
 
@@ -110,26 +124,19 @@ unicode() ->
      ).
 
 string() ->
-    Append = fun({A, B}) -> lists:append(A, B) end,
-    Quote = parser:using(
-	      parser:literal($"),
-	      fun(Ch) -> [Ch] end
-	     ),
+    Cons = fun({X, Y}) -> [X|Y] end,
+    Snoc = fun({X, Y}) -> lists:append(X, [Y]) end,
+    Quote = parser:literal($"),
     Ignore = parser:p(fun parser:succeed/2, ""),
     parser:using(
-      parser:then(
-	Quote,
-	parser:using(
-	  parser:then(
-	    parser:alt(parser:some(parser:alt(parser:acceptable_char(), escape_sequence())),
-		       Ignore),
-	    Quote
-	   ),
-	  Append
-	 )
-       ),
-      Append
-     ).
+      parser:then(parser:nibble(Quote),
+		  parser:using(
+		    parser:then(
+		      parser:alt(Ignore,
+				 parser:some(parser:alt(parser:acceptable_char(), escape_sequence()))),
+		      Quote),
+		    Snoc)),
+      Cons).
 
 integer() ->
     C2Str = fun(C) -> [C] end,
