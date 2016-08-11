@@ -22,22 +22,22 @@ object() ->
     Append = fun({A, B}) -> lists:append(A, B) end,
     Ignore = parser:p(fun parser:succeed/2, [""]),
     Id = fun(X) -> X end,
+    EncObject = fun(E) -> #object{ elements= E } end,
     parser:using(
-      parser:nibble(
-	parser:xthen(parser:literal(${),
-		     parser:using(
-		       parser:nibble(
-			 parser:thenx(
-			   parser:alt(Ignore,
-				      parser:using(
-					parser:nibble(
-					  parser:then(key_value(),
-						      parser:nibble(
-							parser:some(then_kv())))),
-					Cons)),
-			   parser:literal($})
-			  )),
-		       Id))),
+      parser:xthen(parser:nibble(parser:literal(${)),
+		   parser:using(
+		     parser:thenx(
+		       parser:alt(Ignore,
+				  parser:using(
+				    parser:nibble(
+				      parser:then(key_value(),
+						  parser:nibble(
+						    parser:some(then_kv())))),
+				    Cons)),
+		       parser:nibble(parser:literal($}))
+		      ),
+		     Id)),
+      EncObject).
 		     %% parser:using(
 		     %%   parser:nibble(
 		     %% 	 parser:then(parser:alt(
@@ -51,7 +51,7 @@ object() ->
 		     %% 		       parser:xthen(parser:literal($}), Ignore))
 		     %% 		    )),
 		     %%   Append))),
-      fun(Elements) -> #object{ elements= Elements } end).
+      %fun(Elements) -> #object{ elements= Elements } end).
 	       
 
 array() ->
@@ -70,8 +70,9 @@ then_value() ->
     parser:xthen(parser:literal($,), parser:nibble(value())).
 
 key_value() ->
-    parser:then(parser:nibble(?MODULE:string()),
-		parser:xthen(parser:nibble(parser:literal($:)), parser:nibble(value()))).
+    parser:then(?MODULE:string(),
+		parser:xthen(parser:nibble(parser:literal($:)),
+			     parser:nibble(value()))).
 
 then_kv() ->
     parser:xthen(parser:literal($,), key_value()).
