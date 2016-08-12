@@ -153,9 +153,10 @@ num() ->
     Cons = fun({A, B}) -> [A|B] end,
     Append = fun({A, B}) -> lists:append(A, B) end,
     Ignore = parser:p(fun parser:succeed/2, ""),
-    Sign =
-	parser:alt(Ignore,
-		   parser:using(parser:literal($-), C2Str)),
+
+    Sign = parser:nibble(parser:alt(Ignore,
+				    parser:using(parser:literal($-), C2Str))),
+
     Decimal =
 	parser:alt(Ignore,
 		   parser:using(parser:then(parser:literal($.),
