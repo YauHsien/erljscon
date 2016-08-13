@@ -143,10 +143,10 @@ integer() ->
     C2Str = fun(C) -> [C] end,
     Cons = fun({A, B}) -> [A|B] end,
     Ignore = parser:p(fun parser:succeed/2, ""),
-    parser:alt(parser:using(parser:literal($0), C2Str),
-	       parser:using(parser:then(parser:digit1_9(),
+    parser:alt(parser:using(parser:then(parser:digit1_9(),
 					parser:alt(parser:some(parser:digit()), Ignore)),
-			    Cons)).
+			    Cons),
+	       parser:using(parser:literal($0), C2Str)).
 
 num() ->
     C2Str = fun(C) -> [C] end,
@@ -158,15 +158,16 @@ num() ->
 				    parser:using(parser:literal($-), C2Str))),
 
     Decimal =
-	parser:alt(Ignore,
-		   parser:using(parser:then(parser:literal($.),
+	parser:alt(parser:using(parser:then(parser:literal($.),
 					    parser:some(parser:digit())),
-				Cons)),
+				Cons),
+		   Ignore),
     Exp =
-	parser:alt(Ignore,
-		   parser:using(parser:then(parser:alt(parser:literal($e), parser:literal($E)),
+	parser:alt(parser:using(parser:then(parser:alt(parser:literal($e), parser:literal($E)),
 					    integer()),
-				Cons)),
+				Cons),
+		   Ignore),
+
     parser:using(parser:then(Sign,
 			     parser:using(parser:then(integer(),
 						      parser:using(parser:then(Decimal, Exp), Append)),
