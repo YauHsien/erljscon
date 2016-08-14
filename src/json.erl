@@ -38,36 +38,24 @@ object() ->
 		      ),
 		     Id)),
       EncObject).
-		     %% parser:using(
-		     %%   parser:nibble(
-		     %% 	 parser:then(parser:alt(
-		     %% 		       Ignore,
-		     %% 		       parser:using(
-		     %% 			 parser:nibble(
-		     %% 			   parser:then(key_value(),
-		     %% 				       parser:alt(parser:many(then_kv()), Ignore))),
-		     %% 			 fun cons/1)),
-		     %% 		     parser:nibble(
-		     %% 		       parser:xthen(parser:literal($}), Ignore))
-		     %% 		    )),
-		     %%   Append))),
-      %fun(Elements) -> #object{ elements= Elements } end).
 	       
 
 array() ->
     Ignore = parser:p(fun parser:succeed/2, [""]),
-    parser:nibble(
-      parser:xthen(parser:literal($[),
+    Unpack = fun([X]) -> X end,
+    parser:using(
+      parser:xthen(parser:nibble(parser:literal($[)),
 		   parser:thenx(
-		     parser:nibble(
-		       parser:alt(parser:using(parser:then(value(),
-							   parser:nibble(parser:some(then_value()))),
-					       fun cons/1),
-				  Ignore)),
-		     parser:nibble(parser:literal($]))))).
+		     parser:alt(parser:using(parser:then(value(),
+							 parser:some(then_value())),
+					     fun cons/1),
+				Ignore),
+		     parser:nibble(parser:literal($])))),
+		   Unpack).
 
 then_value() ->
-    parser:xthen(parser:literal($,), parser:nibble(value())).
+    parser:xthen(parser:nibble(parser:literal($,)),
+		 value()).
 
 key_value() ->
     parser:then(?MODULE:string(),
