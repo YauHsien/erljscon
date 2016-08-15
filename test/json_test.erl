@@ -91,12 +91,12 @@ object_test() ->
     E = #parsing{ parsed= #object{ elements= [{"\"hello\"", "1"}, {"\"world\"", "2"}] }, rest= "" },
     ?assertMatch([E|_], V).
 	
-%% array_test() ->
-%%     P = json:array(),
-%%     Inp = "   [ \"hello\" , \"world\" ,  1,2,3   ]",
-%%     V = P(Inp),
-%%     E = #parsing{ parsed= ["\"hello\"", "\"world\"", "1", "2", "3"], rest= "" },
-%%     ?assertMatch([E|_], V).
+array_test() ->
+    P = json:array(),
+    Inp = "   [ \"hello\" , \"world\" ,  1,2, 3   ]   ",
+    V = P(Inp),
+    E = #parsing{ parsed= ["\"hello\"", "\"world\"", "1", "2", "3"], rest= "" },
+    ?assertMatch([E|_], V).
 
 array_empty_test() ->
     P = json:array(),

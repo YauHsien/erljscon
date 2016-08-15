@@ -42,7 +42,7 @@ object() ->
 
 array() ->
     Ignore = parser:p(fun parser:succeed/2, [""]),
-    Unpack = fun([X]) -> X end,
+    Unpack = fun([X]) -> X; (X) -> X end,
     parser:using(
       parser:xthen(parser:nibble(parser:literal($[)),
 		   parser:thenx(
