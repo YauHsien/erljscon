@@ -59,8 +59,8 @@ false_test() ->
     P = json:false(),
     Inp = " false,",
     V = P(Inp),
-    E = [#parsing{ parsed= "false", rest= "," }],
-    ?assertEqual(E, V).
+    E = #parsing{ parsed= "false", rest= "," },
+    ?assertMatch([E|_], V).
 
 null_test() ->
     P = json:null(),
@@ -104,6 +104,13 @@ array_empty_test() ->
     V = P(Inp),
     E = #parsing{ parsed= [], rest= "" },
     ?assertMatch([E|_], V).
+
+%% json_test() ->
+%%     P = json:json(),
+%%     Inp = "{\"hello\": \"world\"}",
+%%     V = P(Inp),
+%%     E = #parsing{ parsed= #object{}, rest= "" },
+%%     ?assertMatch([E|_], V).
 
 %% example_test() ->
 %%     P = json:json(),
