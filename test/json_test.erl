@@ -66,9 +66,8 @@ null_test() ->
     P = json:null(),
     Inp = "null ,",
     V = P(Inp),
-    E = [#parsing{ parsed= "null", rest= "," },
-	 #parsing{ parsed= "null", rest= " ," }],
-    ?assertEqual(E, V).
+    E = #parsing{ parsed= "null", rest= "," },
+    ?assertMatch([E|_], V).
 
 key_value_test() ->
     P = json:key_value(),
