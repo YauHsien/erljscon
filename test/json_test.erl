@@ -153,3 +153,17 @@ array_empty_test() ->
 %%     V = P(Inp),
 %%     E = #parsing{ parsed= Obj, rest= "" },
 %%     ?assertMatch([E|_], V).
+
+e_test() ->
+    P = json:e(),
+    I = [ "e2", "e+2", "e-2", "E2", "E+2", "E-2" ],
+    lists:map(fun(Inp= [$e,$+|_]) -> ?assertEqual( [#parsing{ parsed= 'e+', rest= "2" },
+						    #parsing{ parsed= 'e',  rest= "+2" }], P(Inp) );
+		 (Inp= [$e,$-|_]) -> ?assertEqual( [#parsing{ parsed= 'e-', rest= "2" },
+						    #parsing{ parsed= 'e',  rest= "-2" }], P(Inp) );
+		 (Inp= [$e|_])    -> ?assertEqual( [#parsing{ parsed= e,    rest= "2" }],  P(Inp) );
+		 (Inp= [$E,$+|_]) -> ?assertEqual( [#parsing{ parsed= 'E+', rest= "2" },
+						    #parsing{ parsed= 'E',  rest= "+2" }], P(Inp) );
+		 (Inp= [$E,$-|_]) -> ?assertEqual( [#parsing{ parsed= 'E-', rest= "2" },
+						    #parsing{ parsed= 'E',  rest= "-2" }], P(Inp) );
+		 (Inp= [$E|_])    -> ?assertEqual( [#parsing{ parsed= 'E',  rest= "2" }],  P(Inp) ) end, I).

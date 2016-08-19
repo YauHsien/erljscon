@@ -172,6 +172,21 @@ null() ->
     parser:nibble(parser:string("null")).
 
 
+
+e() ->
+    parser:using(parser:then(parser:alt(parser:literal($e), parser:literal($E)),
+			     parser:alt(parser:alt(parser:literal($+), parser:literal($-)),
+					ignore())),
+		 fun({Ch, Ap}) ->
+			 case Ap of
+			     [""] -> list_to_atom([Ch]);
+			     _    -> list_to_atom([Ch, Ap])
+			 end
+		 end).
+					  
+					  
+					  
+
 %% -------------------------------------
 %% Internal
 %% -------------------------------------
@@ -186,3 +201,7 @@ cons({A, B}) ->
 
 append({A, B}) ->
     lists:append(A, B).
+
+
+ignore() ->
+    parser:p(fun parser:succeed/2, [""]).
