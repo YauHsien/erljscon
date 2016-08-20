@@ -123,6 +123,9 @@ const(X, _) ->
 is_digit(C) ->
     C >= $0 andalso C =< $9.
 
+is_digit_1_9(C) ->
+    C >= $1 andalso C =< $9.
+
 is_letter(C) ->
     (C >= $a andalso C =< $z) orelse
 	(C >= $A andalso C =< $Z).
@@ -307,10 +310,10 @@ e() ->
 	       parser:p(fun parser:satisfy/2, fun(C) -> (C == $+) or (C == $-) end))).
 
 digit() ->
-    parser:p(fun parser:satisfy/2, fun(C) -> (C >= $0) and (C =< $9) end).
+    parser:p(fun parser:satisfy/2, fun is_digit/1).
 
 digit1_9() ->
-    parser:p(fun parser:satisfy/2, fun(C) -> (C >= $1) and (C =< $9) end).
+    parser:p(fun parser:satisfy/2, fun is_digit_1_9/1).
 
 digits() ->
     some(digit()).

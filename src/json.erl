@@ -173,18 +173,20 @@ null() ->
 
 
 
+digits() ->
+    parser:alt(parser:using(parser:digit(), fun pack/1),
+	       parser:using(
+		 parser:then(parser:digit(),
+			     fn_util:lazy(fun digits/0, [])),
+		 fun cons/1)).
+
+
+
 e() ->
     parser:using(parser:then(parser:alt(parser:literal($e), parser:literal($E)),
 			     parser:alt(parser:alt(parser:literal($+), parser:literal($-)),
 					ignore())),
-		 fun({Ch, Ap}) ->
-			 case Ap of
-			     [""] -> list_to_atom([Ch]);
-			     _    -> list_to_atom([Ch, Ap])
-			 end
-		 end).
-					  
-					  
+		 fun pack_e/1).
 					  
 
 %% -------------------------------------
@@ -201,6 +203,19 @@ cons({A, B}) ->
 
 append({A, B}) ->
     lists:append(A, B).
+
+
+
+pack(X) -> [X].
+
+
+
+pack_e({$E, Ap}) -> pack_e({$e, Ap});
+pack_e({Ch, Ap}) -> case Ap of
+			[""] -> list_to_atom([Ch]);
+			_    -> list_to_atom([Ch, Ap])
+		    end.
+
 
 
 ignore() ->
