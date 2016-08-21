@@ -156,6 +156,17 @@ array_empty_test() ->
 
 
 
+exp_test() ->
+    P = json:exp(),
+    I = [ "e-3", "E+21", "e1" ],
+    lists:map(fun(Inp= "e-3")  -> ?assertEqual( [#parsing{ parsed= "e-3", rest= "" }],  P(Inp) );
+		 (Inp= "E+21") -> ?assertEqual( [#parsing{ parsed= "e+2", rest= "1" },
+						 #parsing{ parsed= "e+21", rest= "" }], P(Inp) );
+		 (Inp= "e1")   -> ?assertEqual( [#parsing{ parsed= "e1", rest= "" }],   P(Inp) )
+	      end, I).
+
+
+
 digits_test() ->
     P = json:digits(),
     I = [ "0", "01", "689" ],

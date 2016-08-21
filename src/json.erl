@@ -173,6 +173,14 @@ null() ->
 
 
 
+exp() ->
+    parser:using(parser:then(e(), digits()),
+		 fun({'e', T})  -> [$e|T];
+		    ({'e+', T}) -> [$e,$+|T];
+		    ({'e-', T}) -> [$e,$-|T] end).
+
+
+
 digits() ->
     parser:alt(parser:using(parser:digit(), fun pack/1),
 	       parser:using(
