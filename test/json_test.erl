@@ -156,6 +156,17 @@ array_empty_test() ->
 
 
 
+frac_test() ->
+    P = json:frac(),
+    I = [ ".0", ".234" ],
+    lists:map(fun(Inp= ".0")   -> ?assertEqual( [#parsing{ parsed= ".0",   rest= "" }], P(Inp) );
+		 (Inp= ".234") -> ?assertEqual( [#parsing{ parsed= ".2", rest= "34" },
+						 #parsing{ parsed= ".23", rest= "4" },
+						 #parsing{ parsed= ".234", rest= "" }], P(Inp) )
+	      end, I).
+
+
+
 exp_test() ->
     P = json:exp(),
     I = [ "e-3", "E+21", "e1" ],

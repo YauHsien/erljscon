@@ -173,6 +173,12 @@ null() ->
 
 
 
+frac() ->
+    parser:using(parser:then(parser:literal($.), digits()),
+		 fun cons/1).
+
+
+
 exp() ->
     parser:using(parser:then(e(), digits()),
 		 fun({'e', T})  -> [$e|T];
