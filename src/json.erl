@@ -173,6 +173,21 @@ null() ->
 
 
 
+int() ->
+    parser:alt(parser:using(parser:digit(), fun pack/1),
+	       parser:alt(parser:using(parser:then(parser:digit1_9(), digits()),
+				       fun cons/1),
+			  parser:alt(parser:using(parser:then(parser:literal($-),
+							      parser:using(parser:digit(), fun pack/1)),
+						  fun cons/1),
+				     parser:using(parser:then(parser:literal($-),
+							      parser:using(parser:then(parser:digit1_9(),
+										       digits()),
+									   fun cons/1)),
+						  fun cons/1)))).
+
+
+
 frac() ->
     parser:using(parser:then(parser:literal($.), digits()),
 		 fun cons/1).

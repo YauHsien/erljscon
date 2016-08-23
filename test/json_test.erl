@@ -156,6 +156,21 @@ array_empty_test() ->
 
 
 
+int_test() ->
+    P = json:int(),
+    I = [ "01", "123", "-01", "-123" ],
+    lists:map(fun(Inp= "01")   -> ?assertEqual( [#parsing{ parsed= "0", rest= "1" }], P(Inp) );
+		 (Inp= "123")  -> ?assertEqual( [#parsing{ parsed= "1", rest= "23" },
+						 #parsing{ parsed= "12", rest= "3" },
+						 #parsing{ parsed= "123", rest= "" }], P(Inp) );
+		 (Inp= "-01")  -> ?assertEqual( [#parsing{ parsed= "-0", rest= "1" }], P(Inp) );
+		 (Inp= "-123") -> ?assertEqual( [#parsing{ parsed= "-1", rest= "23" },
+						 #parsing{ parsed= "-12", rest= "3" },
+						 #parsing{ parsed= "-123", rest= "" }], P(Inp) )
+	      end, I).
+
+
+
 frac_test() ->
     P = json:frac(),
     I = [ ".0", ".234" ],
