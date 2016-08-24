@@ -173,6 +173,15 @@ null() ->
 
 
 
+number() ->
+    parser:alt(int(),
+	       parser:alt(parser:using(parser:then(int(), frac()), fun append/1),
+			  parser:alt(parser:using(parser:then(int(), exp()), fun append/1),
+				     parser:using(parser:then(int(),
+							      parser:using(parser:then(frac(), exp()), fun append/1)), fun append/1)))).
+
+
+
 int() ->
     parser:alt(parser:using(parser:digit(), fun pack/1),
 	       parser:alt(parser:using(parser:then(parser:digit1_9(), digits()),

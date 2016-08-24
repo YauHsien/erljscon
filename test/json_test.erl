@@ -156,6 +156,25 @@ array_empty_test() ->
 
 
 
+number_test() ->
+    P = json:number(),
+    I = [ "12", "12.3", "12e-3", "-12.3E4" ],
+    lists:map(fun(Inp= "12")      -> ?assertEqual( [#parsing{ parsed= "1", rest= "2" },
+						    #parsing{ parsed= "12", rest= "" }], P(Inp) );
+		 (Inp= "12.3")    -> ?assertEqual( [#parsing{ parsed= "1", rest= "2.3" },
+						    #parsing{ parsed= "12", rest= ".3" },
+						    #parsing{ parsed= "12.3", rest= "" }], P(Inp) );
+		 (Inp= "12e-3")   -> ?assertEqual( [#parsing{ parsed= "1", rest= "2e-3" },
+						    #parsing{ parsed= "12", rest= "e-3" },
+						    #parsing{ parsed= "12e-3", rest= "" }], P(Inp) );
+		 (Inp= "-12.3E4") -> ?assertEqual( [#parsing{ parsed= "-1", rest= "2.3E4" },
+						    #parsing{ parsed= "-12", rest= ".3E4" },
+						    #parsing{ parsed= "-12.3", rest= "E4" },
+						    #parsing{ parsed= "-12.3e4", rest= "" }], P(Inp) )
+	      end, I).
+
+
+
 int_test() ->
     P = json:int(),
     I = [ "01", "123", "-01", "-123" ],
