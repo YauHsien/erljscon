@@ -67,10 +67,12 @@ then_kv() ->
 	      
 
 escape_sequence() ->
-    lists:foldr(fun(Ch, R) -> parser:alt(escape(Ch), R) end,
-		unicode(),
-		[$", $\\, $\/, $b, $f, $n, $r, $t]).
-			 
+    parser:using(parser:then(parser:literal($\\),
+			     lists:foldr(fun(Ch, R) -> parser:alt(parser:literal(Ch), R) end,
+					 fun parser:fail/1,
+					 [$", $\\, $\/, $b, $f, $n, $r, $t])),
+		 fun({A, L}) when is_list(L) -> lists:map(fun(X) -> cons({A, X}) end, L);
+		    ({A, X}) when not is_list(X) -> cons({A, pack(X)}) end).
 
 escape($") -> escape1($");
 escape($\\) -> escape1($\\); 
@@ -81,36 +83,37 @@ escape($n) -> escape1($n);
 escape($r) -> escape1($r);
 escape($t) -> escape1($t).
 
-escape1(C) ->
-    parser:using(
-      parser:then(parser:literal($\\), parser:literal(C)),
-      fun({A, B}) -> [A, B] end
-     ).
+escape1(C) -> parser:using(parser:then(parser:literal($\\), parser:literal(C)),
+			   fun cons/1).
 
-hxdigit() ->
-    lists:foldr(fun(Ch, R) -> parser:alt(parser:literal(Ch), R) end,
-		parser:literal($F),
-		[$0, $1, $2, $3, $4, $5, $6, $7, $8, $9,
-		 $a, $b, $c, $d, $e, $f,
-		 $A, $B, $C, $D, $E]).
+hxdigit() -> lists:foldr(fun(Ch, R) -> parser:alt(parser:literal(Ch), R) end,
+			 parser:literal($F),
+			 [$0, $1, $2, $3, $4, $5, $6, $7, $8, $9,
+			  $a, $b, $c, $d, $e, $f,
+			  $A, $B, $C, $D, $E]).
 
-hxdigits(0) ->
-    parser:p(fun parser:succeed/2, "");
-hxdigits(N) when N > 0 ->
-    parser:using(parser:then(hxdigit(), hxdigits(N-1)),
-		 fun({A,B}) -> [A|B] end).
+hxdigits(0) ->            parser:p(fun parser:succeed/2, "");
+hxdigits(N) when N > 0 -> parser:using(parser:then(hxdigit(), hxdigits(N-1)),
+				       fun({A,B}) -> [A|B] end).
 
 unicode() ->
-    parser:using(
-      parser:then(parser:literal($\\),
-		  parser:using(
-		    parser:then(parser:alt(parser:literal($u),
-					   parser:literal($U)),
-				hxdigits(4)),
-		    fun({A,B}) -> [A|B] end)
-		 ),
-      fun({A,B}) -> [A|B] end
-     ).
+    parser:using(parser:then(parser:literal($\\),
+			     parser:using(parser:then(parser:literal($u),
+						      hxdigits(4)),
+					  fun cons/1)),
+		 fun cons/1).
+
+
+
+acceptable_char() ->
+    P = fun($")  -> false;
+	   ($\\) -> false;
+	   (C) when C =< $\x{1F} -> false;
+	   (_)   -> true end,
+    parser:using(parser:p(fun parser:satisfy/2, [P]),
+		 fun pack/1).
+
+
 
 string() ->
     Cons = fun({X, Y}) -> [X|Y] end,
@@ -170,6 +173,13 @@ false() ->
 
 null() ->
     parser:nibble(parser:string("null")).
+
+
+
+char() ->
+    parser:alt(acceptable_char(),
+	       parser:alt(escape_sequence(),
+			  unicode())).
 
 
 

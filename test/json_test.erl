@@ -10,16 +10,6 @@ unicode_test() ->
     E = [#parsing{ parsed= "\\u1234", rest= "" }],
     ?assertEqual(E, V).
 
-escape_sequence_test() ->
-    P = parser:then(
-	  parser:string("hello"),
-	  json:escape_sequence()
-	 ),
-    Inp = "hello\\n",
-    V = P(Inp),
-    E = [#parsing{ parsed= {"hello", "\\n"}, rest= "" }],
-    ?assertEqual(E, V).
-
 string_NonEmpty_test() ->
     P = json:string(),
     Inp = "   \"hello,world\" ",
@@ -153,6 +143,26 @@ array_empty_test() ->
 %%     V = P(Inp),
 %%     E = #parsing{ parsed= Obj, rest= "" },
 %%     ?assertMatch([E|_], V).
+
+
+
+%% char_test() ->
+%%     P = json:char(),
+%%     I = [ [$0], "\\t", "\\u1234" ],
+%%     lists:map(fun(Inp= [$0])      -> ?assertEqual( [], P(Inp) );
+%% 		 (Inp= "\\t")     -> ?assertEqual( [#parsing{ parsed= "\\t", rest= "" }], P(Inp) );
+%% 		 (Inp= "\\u1234") -> ?assertEqual( [#parsing{ parsed= "\\u1234", rest= "" }], P(Inp) )
+%% 	      end, I).
+
+
+
+escape_sequence_test() ->
+    P = json:escape_sequence(),
+    I = [ "\\\\", "\\t", "\\n" ],
+    lists:map(fun(Inp= "\\\\") -> ?assertEqual( [#parsing{ parsed= "\\\\", rest= "" }], P(Inp) );
+		 (Inp= "\\t")  -> ?assertEqual( [#parsing{ parsed= "\\t", rest= "" }], P(Inp) );
+		 (Inp= "\\n")  -> ?assertEqual( [#parsing{ parsed= "\\n", rest= "" }], P(Inp) )
+	      end, I).
 
 
 
