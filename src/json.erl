@@ -110,7 +110,7 @@ acceptable_char() ->
 	   ($\\) -> false;
 	   (C) when C =< $\x{1F} -> false;
 	   (_)   -> true end,
-    parser:using(parser:p(fun parser:satisfy/2, [P]),
+    parser:using(parser:p(fun parser:satisfy/2, P),
 		 fun pack/1).
 
 

@@ -156,6 +156,18 @@ array_empty_test() ->
 
 
 
+acceptable_char_test() ->
+    P = json:acceptable_char(),
+    I = [ "\"", "\\", [$\x{0}], "嗨，世界" ],
+    lists:map(fun(Inp= "\"")      -> ?assertEqual( [], P(Inp) );
+		 (Inp= "\\")      -> ?assertEqual( [], P(Inp) );
+		 (Inp= [$\x{0}])  -> ?assertEqual( [], P(Inp) );
+		 (Inp= "嗨，世界") -> ok% ?assertEqual( [#parsing{ parsed= "嗨", rest= "，世界" }],
+				     %   	    P(Inp) )
+	      end, I).
+
+
+
 escape_sequence_test() ->
     P = json:escape_sequence(),
     I = [ "\\\\", "\\t", "\\n" ],
