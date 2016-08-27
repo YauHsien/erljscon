@@ -146,13 +146,13 @@ array_empty_test() ->
 
 
 
-%% char_test() ->
-%%     P = json:char(),
-%%     I = [ [$0], "\\t", "\\u1234" ],
-%%     lists:map(fun(Inp= [$0])      -> ?assertEqual( [], P(Inp) );
-%% 		 (Inp= "\\t")     -> ?assertEqual( [#parsing{ parsed= "\\t", rest= "" }], P(Inp) );
-%% 		 (Inp= "\\u1234") -> ?assertEqual( [#parsing{ parsed= "\\u1234", rest= "" }], P(Inp) )
-%% 	      end, I).
+char_test() ->
+    P = json:char(),
+    I = [ [$\x{0}], "\\t", "\\u1234" ],
+    lists:map(fun(Inp= [$\x{0}])  -> ?assertEqual( [], P(Inp) );
+		 (Inp= "\\t")     -> ?assertEqual( [#parsing{ parsed= "\\t", rest= "" }], P(Inp) );
+		 (Inp= "\\u1234") -> ?assertEqual( [#parsing{ parsed= "\\u1234", rest= "" }], P(Inp) )
+	      end, I).
 
 
 
