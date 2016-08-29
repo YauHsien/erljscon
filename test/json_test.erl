@@ -1,3 +1,4 @@
+%% -*- coding: utf-8 -*-
 -module(json_test).
 -include_lib("eunit/include/eunit.hrl").
 -include("../include/parsing.hrl").
@@ -158,12 +159,11 @@ char_test() ->
 
 acceptable_char_test() ->
     P = json:acceptable_char(),
-    I = [ "\"", "\\", [$\x{0}], "¶Ù¡A¥@¬É" ],
-    lists:map(fun(Inp= "\"")      -> ?assertEqual( [], P(Inp) );
-		 (Inp= "\\")      -> ?assertEqual( [], P(Inp) );
-		 (Inp= [$\x{0}])  -> ?assertEqual( [], P(Inp) );
-		 (Inp= "¶Ù¡A¥@¬É") -> ok% ?assertEqual( [#parsing{ parsed= "¶Ù", rest= "¡A¥@¬É" }],
-				     %   	    P(Inp) )
+    I = [ "\"", "\\", [$\x{0}], "å—¨ï¼Œä¸–ç•Œ" ],
+    lists:map(fun(Inp= "\"")       -> ?assertEqual( [], P(Inp) );
+		 (Inp= "\\")       -> ?assertEqual( [], P(Inp) );
+		 (Inp= [$\x{0}])   -> ?assertEqual( [], P(Inp) );
+		 (Inp= "å—¨ï¼Œä¸–ç•Œ") -> ?assertEqual( [#parsing{ parsed= "å—¨", rest= "ï¼Œä¸–ç•Œ" }], P(Inp) )
 	      end, I).
 
 
