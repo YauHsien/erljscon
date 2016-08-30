@@ -182,6 +182,13 @@ char() ->
 
 
 
+chars() ->
+    parser:alt(char(),
+	       parser:using(parser:then(char(), fn_util:lazy(fun chars/0, [])),
+			    fun append/1)).
+
+
+
 number() ->
     parser:alt(int(),
 	       parser:alt(parser:using(parser:then(int(), frac()), fun append/1),

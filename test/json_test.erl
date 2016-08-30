@@ -147,6 +147,17 @@ array_empty_test() ->
 
 
 
+chars_test() ->
+    P = json:chars(),
+    I = [ "嗨，世界" ],
+    lists:map(fun(Inp= "嗨，世界")  -> ?assertEqual( [#parsing{ parsed= "嗨", rest= "，世界" },
+						      #parsing{ parsed= "嗨，", rest= "世界" },
+						      #parsing{ parsed= "嗨，世", rest= "界" },
+						      #parsing{ parsed= "嗨，世界", rest= "" }], P(Inp) )
+	      end, I).
+
+
+
 char_test() ->
     P = json:char(),
     I = [ [$\x{0}], "\\t", "\\u1234" ],
