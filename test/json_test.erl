@@ -11,19 +11,12 @@ unicode_test() ->
     E = [#parsing{ parsed= "\\u1234", rest= "" }],
     ?assertEqual(E, V).
 
-string_NonEmpty_test() ->
-    P = json:string(),
-    Inp = "   \"hello,world\" ",
-    V = P(Inp),
-    E= #parsing{ parsed= "\"hello,world\"", rest= " " },
-    ?assertMatch([E|_], V).
-
-string_Empty_test() ->
-    P = json:string(),
-    Inp = "   \"\"  ",
-    V = P(Inp),
-    E = #parsing{ parsed= "\"\"", rest= "  " },
-    ?assertMatch([E|_], V).
+%% string_Empty_test() ->
+%%     P = json:string(),
+%%     Inp = "\"\"",
+%%     V = P(Inp),
+%%     E = #parsing{ parsed= "\"\"", rest= "  " },
+%%     ?assertMatch([E|_], V).
 
 integer_test() ->
     P = json:integer(),
@@ -60,26 +53,26 @@ null_test() ->
     E = #parsing{ parsed= "null", rest= "," },
     ?assertMatch([E|_], V).
 
-key_value_test() ->
-    P = json:key_value(),
-    Inp = "   \"hello\" :   \"world\"   ",
-    V = P(Inp),
-    E = #parsing{ parsed= {"\"hello\"", "\"world\""}, rest= "" },
-    ?assertMatch([E|_], V).
+%% key_value_test() ->
+%%     P = json:key_value(),
+%%     Inp = "   \"hello\" :   \"world\"   ",
+%%     V = P(Inp),
+%%     E = #parsing{ parsed= {"\"hello\"", "\"world\""}, rest= "" },
+%%     ?assertMatch([E|_], V).
 
-key_value_num_test() ->
-    P = json:key_value(),
-    Inp = "  \"hello\": 3.14 ",
-    V = P(Inp),
-    E = #parsing{ parsed= {"\"hello\"", "3.14"}, rest= "" },
-    ?assertMatch([E|_], V).
+%% key_value_num_test() ->
+%%     P = json:key_value(),
+%%     Inp = "  \"hello\": 3.14 ",
+%%     V = P(Inp),
+%%     E = #parsing{ parsed= {"\"hello\"", "3.14"}, rest= "" },
+%%     ?assertMatch([E|_], V).
 
-object_test() ->
-    P = json:object(),
-    Inp = "  {   \"hello\" :1, \"world\": 2 }",
-    V = P(Inp),
-    E = #parsing{ parsed= #object{ elements= [{"\"hello\"", "1"}, {"\"world\"", "2"}] }, rest= "" },
-    ?assertMatch([E|_], V).
+%% object_test() ->
+%%     P = json:object(),
+%%     Inp = "  {   \"hello\" :1, \"world\": 2 }",
+%%     V = P(Inp),
+%%     E = #parsing{ parsed= #object{ elements= [{"\"hello\"", "1"}, {"\"world\"", "2"}] }, rest= "" },
+%%     ?assertMatch([E|_], V).
 	
 array_test() ->
     P = json:array(),
@@ -144,6 +137,16 @@ array_empty_test() ->
 %%     V = P(Inp),
 %%     E = #parsing{ parsed= Obj, rest= "" },
 %%     ?assertMatch([E|_], V).
+
+
+
+string_test() ->
+    P = json:string(),
+    I = [ "\"\"", "\"abc\"", "\"嗨，世界\"" ],
+    lists:map(fun(Inp= "\"\"")    ->      ?assertEqual( [#parsing{ parsed= "\"\"", rest= "" }], P(Inp) );
+		 (Inp= "\"abc\"") ->      ?assertEqual( [#parsing{ parsed= "\"abc\"", rest= "" }], P(Inp) );
+		 (Inp= "\"嗨，世界\"") -> ?assertEqual( [#parsing{ parsed= "\"嗨，世界\"", rest= "" }], P(Inp) )
+	      end, I).
 
 
 

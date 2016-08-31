@@ -114,21 +114,6 @@ acceptable_char() ->
 
 
 
-string() ->
-    Cons = fun({X, Y}) -> [X|Y] end,
-    Snoc = fun({X, Y}) -> lists:append(X, [Y]) end,
-    Quote = parser:literal($"),
-    Ignore = parser:p(fun parser:succeed/2, ""),
-    parser:using(
-      parser:then(parser:nibble(Quote),
-		  parser:using(
-		    parser:then(
-		      parser:alt(Ignore,
-				 parser:some(parser:alt(parser:acceptable_char(), escape_sequence()))),
-		      Quote),
-		    Snoc)),
-      Cons).
-
 integer() ->
     C2Str = fun(C) -> [C] end,
     Cons = fun({A, B}) -> [A|B] end,
@@ -172,6 +157,19 @@ false() ->
 
 null() ->
     parser:nibble(parser:string("null")).
+
+
+
+string() ->
+    Quote = parser:literal($"),
+    EndQuote = parser:using(Quote, fun pack/1),
+    parser:alt(parser:using(parser:then(Quote, EndQuote),
+			    fun cons/1),
+	       parser:using(parser:then(Quote,
+					parser:using(parser:then(chars(),
+								 EndQuote),
+						     fun append/1)),
+			    fun cons/1)).
 
 
 
