@@ -153,10 +153,10 @@ true() ->
     parser:nibble(parser:string("true")).
 
 false() ->
-    parser:nibble(parser:string("false")).
+    parser:string("false").
 
 null() ->
-    parser:nibble(parser:string("null")).
+    parser:string("null").
 
 
 
