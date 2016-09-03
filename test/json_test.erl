@@ -34,10 +34,10 @@ num_test() ->
 
 true_test() ->
     P = json:true(),
-    Inp = "  true ,",
+    Inp = "true",
     V = P(Inp),
-    E = #parsing{ parsed= "true", rest= "," },
-    ?assertMatch([E|_], V).
+    E = [#parsing{ parsed= "true", rest= "" }],
+    ?assertEqual(E, V).
 
 %% key_value_test() ->
 %%     P = json:key_value(),

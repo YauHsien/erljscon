@@ -150,7 +150,7 @@ num() ->
 		 Append).
 
 true() ->
-    parser:nibble(parser:string("true")).
+    parser:string("true").
 
 false() ->
     parser:string("false").
