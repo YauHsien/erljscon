@@ -32,13 +32,6 @@ num_test() ->
     E = #parsing{ parsed= "0.31416e2", rest= " " },
     ?assertMatch([E|_], V).
 
-true_test() ->
-    P = json:true(),
-    Inp = "true",
-    V = P(Inp),
-    E = [#parsing{ parsed= "true", rest= "" }],
-    ?assertEqual(E, V).
-
 %% key_value_test() ->
 %%     P = json:key_value(),
 %%     Inp = "   \"hello\" :   \"world\"   ",
@@ -65,13 +58,6 @@ array_test() ->
     Inp = "   [ \"hello\" , \"world\" ,  1,2, 3   ]   ",
     V = P(Inp),
     E = #parsing{ parsed= ["\"hello\"", "\"world\"", "1", "2", "3"], rest= "" },
-    ?assertMatch([E|_], V).
-
-array_empty_test() ->
-    P = json:array(),
-    Inp = "  [ ]  ",
-    V = P(Inp),
-    E = #parsing{ parsed= [], rest= "" },
     ?assertMatch([E|_], V).
 
 %% json_test() ->
@@ -123,6 +109,25 @@ array_empty_test() ->
 %%     V = P(Inp),
 %%     E = #parsing{ parsed= Obj, rest= "" },
 %%     ?assertMatch([E|_], V).
+
+
+
+array_empty_test() ->
+    P = json:array(),
+    Inp = "[]",
+    V = P(Inp),
+    E = [#parsing{ parsed= [], rest= "" }],
+    ?assertEqual(E, V).
+
+
+
+true_test() ->
+    P = json:true(),
+    Inp = "true",
+    V = P(Inp),
+    E = [#parsing{ parsed= "true", rest= "" }],
+    ?assertEqual(E, V).
+
 
 
 false_test() ->
