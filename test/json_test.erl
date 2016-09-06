@@ -112,12 +112,19 @@ array_test() ->
 
 
 
+object_empty_test() ->
+    P = json:object(),
+    I = [ "{}" ],
+    lists:map(fun(Inp= "{}") -> ?assertEqual( [#parsing{ parsed= #object{}, rest= "" }], P(Inp) )
+	      end, I).
+
+
+
 array_empty_test() ->
     P = json:array(),
-    Inp = "[]",
-    V = P(Inp),
-    E = [#parsing{ parsed= [], rest= "" }],
-    ?assertEqual(E, V).
+    I = [ "[]" ],
+    lists:map(fun(Inp= "[]") -> ?assertEqual( [#parsing{ parsed= [], rest= "" }], P(Inp) )
+	      end, I).
 
 
 

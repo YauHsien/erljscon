@@ -18,26 +18,18 @@ value() ->
 								      null())))))).
 
 object() ->
-    Cons = fun({A, B}) -> [A|B] end,
-    Append = fun({A, B}) -> lists:append(A, B) end,
+    EncObject = fun([E]) -> #object{ elements= E } end,
     Ignore = parser:p(fun parser:succeed/2, [""]),
-    Id = fun(X) -> X end,
-    EncObject = fun(E) -> #object{ elements= E } end,
     parser:using(
       parser:xthen(parser:nibble(parser:literal(${)),
-		   parser:using(
-		     parser:thenx(
-		       parser:alt(Ignore,
-				  parser:using(
-				    parser:nibble(
-				      parser:then(key_value(),
-						  parser:nibble(
-						    parser:some(then_kv())))),
-				    Cons)),
-		       parser:nibble(parser:literal($}))
-		      ),
-		     Id)),
-      EncObject).
+		   parser:thenx(
+		     parser:alt(parser:using(parser:then(key_value(),
+							 parser:some(then_kv())),
+					     fun cons/1),
+				Ignore),
+		     parser:nibble(parser:literal($})))),
+		   EncObject).
+
 	       
 
 array() ->
