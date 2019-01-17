@@ -27,16 +27,27 @@
 -define(BadJSON, badjson).
 
 %% Tokenizer meeting json.org
--spec(json(binary()) -> {Tag :: atom(), Ret :: iolist(), Tail :: binary()}).
+-spec(json(binary())
+      -> {Tag :: atom(),
+          Output :: iolist()}).
 json(Bin) ->
-    case element(Bin) of
-        {?OK, E, Tail} ->
-	    case Tail of
-	        <<>> -> {?OK, E, Tail};
-		_ -> {?BadJSON, E, Tail}
-	    end;
-	{?BadElement, E, Tail} ->
-	    {?BadJSON, E, Tail}
+    {?OK, E, _Tail, _Point} = json(Bin, {1, 1}),
+    {?OK, E}.
+
+-spec(json(Input :: binary(), Point :: {integer(), integer()})
+      -> {Tag :: ?OK | ?BadJSON,
+          Output :: iolist(),
+          Tail :: binary(),
+          Point1 :: {integer(), integer()}}).
+json(Bin, {_r, _c} = Point) ->
+    case element(Bin, Point) of
+        {?OK, E, Tail, Point1} ->
+            case Tail of
+                <<>> -> {?OK, E, Tail, Point1};
+                _ -> {?BadJSON, E, Tail, Point1}
+            end;
+        {?BadElement, E, Tail, Point1} ->
+            {?BadJSON, E, Tail, Point1}
     end.
 
 value(<<Sign:32, Tail/binary>>) when <<Sign:32>> == <<"true">> orelse <<Sign:32>> == <<"null">> ->
@@ -138,14 +149,19 @@ elements(Bin) ->
 	    {?BadElements, <<>>, Bin}
     end.
 
-element(Bin) ->
-    try
-        {?OK, WS1, Tail} = t:ws(Bin),
-	{?OK, V, Tail1} = value(Tail),
-	{?OK, WS2, Tail2} = t:ws(Tail1),
-	{?OK, ?IOLST3(WS1, V, WS2), Tail2}
-    catch
-        _:_ -> {?BadElement, ?IOEMP, Bin}
+-spec(element(Input :: binary(), Point :: {integer(), integer()})
+      -> {Tag :: ?OK | ?BadElement,
+          Parsed :: iolist(),
+          Tail :: binary(),
+          Point1 :: {integer(), integer()}}).
+element(Bin, {_r, _c} = Point) ->
+    {?OK, WS1, Tail, Point1} = t:ws(Bin, Pointer),
+    case value(Tail, Point1) of
+        {?OK, V, Tail1, Point2} ->
+            {?OK, WS2, Tail2, Point3} = t:ws(Tail1, Point2),
+            {?OK, ?IOLST3(WS1, V, WS2), Tail2, Point3};
+        {?BadValue, V, Tail1, Point2} ->
+            {?BadElement, ?IOLST(V), Tail1, Point2}
     end.
 
 string(Bin) ->
