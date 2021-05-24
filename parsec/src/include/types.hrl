@@ -1,0 +1,3 @@
+-type parser(FromType, ToType) :: fun(([FromType]) -> [{ToType, [FromType]}]).
+-type from() :: [any()].
+-type to() :: any().
