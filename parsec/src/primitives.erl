@@ -5,6 +5,8 @@
     epsilon/0,
     fail/0,
     fail/1,
+    lazy/1,
+    literal/1,
     satisfy/1,
     satisfy/2,
     succeed/1,
@@ -26,11 +28,18 @@ epsilon() ->
 fail() ->
     fun(_inp) -> [] end.
 
--spec fail(Inp::from()) -> [].
+-spec fail(Inp::[from()]) -> [].
 fail(Inp) ->
     (fail())(Inp).
 
--spec satisfy(Predicate::fun((any())->bool())) -> parser(from(),to()).
+lazy(Func) when is_function(Func) ->
+    {lazy, Func}.
+
+-spec literal(Case::'case'()) -> parser('case'(),'case'()).
+literal(X) ->
+    satisfy(fun(Y) -> X==Y end).
+
+-spec satisfy(Predicate::fun(('case'())->boolean())) -> parser(from(),to()).
 satisfy(Predicate) ->
     fun([]) ->
             fail([]);
@@ -43,7 +52,7 @@ satisfy(Predicate) ->
             end
     end.
 
--spec satisfy(Predicate::fun((any())->bool()), Inp::from()) -> [{to(), Rest::from()}] | [].
+-spec satisfy(Predicate::fun(('case'())->boolean()), Inp::[from()]) -> [{to(), Rest::[from()]}] | [].
 satisfy(Predicate, Inp) ->
     (satisfy(Predicate))(Inp).
 
@@ -51,6 +60,6 @@ satisfy(Predicate, Inp) ->
 succeed(Val) ->
     fun(Inp) -> [{Val,Inp}] end.
 
--spec succeed(Val::to(), Inp::from()) -> [{to(), Rest::from()}].
+-spec succeed(Val::to(), Inp::[from()]) -> [{to(), Rest::[from()]}].
 succeed(Val, Inp) ->
     (succeed(Val))(Inp).

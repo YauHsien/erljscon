@@ -18,6 +18,12 @@ fail_test() ->
     ?assertMatch([], F1(Inp)),
     ok.
 
+literal_test() ->
+    L3 = primitives:literal($3),
+    Inp = "345",
+    ?assertMatch([{$3,"45"}], L3(Inp)),
+    ok.
+
 satisfy_test() ->
     Predicate = fun($h) -> true; (_) -> false end,
     S1 = fun primitives:satisfy/1,
