@@ -1,16 +1,12 @@
-# erljscon
+erljscon
 ==========
-
+Erlang 實現的 JSON ：其中特別運用 Parser Combinators 技巧。
 An OTP application
 
-### Build
----------
+第一版
+-------
+`master` 分支的本地目錄 `/`
 
-    `$ rebar compile`
-
-### TEST
---------
-
-	`$ rebar eunit`
-
-Examples, including the arithmetic parser described in Hutton's "Higher-Order Functions for Parsing", are listed in `src/example.hrl` and `test/*.erl`.
+第二版
+-------
+`parsec` 分支的 `parsec` 目錄
