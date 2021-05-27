@@ -19,7 +19,7 @@ white() ->
 any(P, List) ->
     lists:foldl(
       fun(X,Acc)-> combinators:alt(?REC(P(X)),Acc) end,
-      primitives:fail(),
+      fun primitives:fail/1,
       List).
 
 conjunct(G, F) ->
