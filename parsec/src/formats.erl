@@ -27,4 +27,4 @@ conjunct(G, F) ->
 
 -spec symbol() -> fun(([char()]) -> parser(char(),[char()])).
 symbol() ->
-    conjunct(fun nibble/1, applications:string()).
+    conjunct(fun nibble/1, fun applications:string/1).

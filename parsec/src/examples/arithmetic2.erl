@@ -1,16 +1,16 @@
 -module(arithmetic2).
 -include("../include/types.hrl").
 -export(
-   [ expn/0,
-     term/0,
-     factor/0
+   [ expn/1,
+     term/1,
+     factor/1
    ]).
 -define(alt, combinators:alt).
 -define(using, combinators:using).
 -define(then, combinators:then).
 -define(thenx, combinators:thenx).
 -define(xthen, combinators:xthen).
--define(number, applications:number).
+-define(number, fun applications:number/1).
 -define(literal, primitives:literal).
 -define(LPAR, $().
 -define(RPAR, $)).
@@ -25,32 +25,35 @@ minus({X, Y}) -> X - Y.
 times({X, Y}) -> X * Y.
 divide({X, Y}) -> X / Y.
 
-expn() ->
-    ?alt(
-       ?alt(
-          ?using(
-             ?then(?thenx(?REC(term()),?literal($+)), ?REC(term())),
-             fun plus/1),
-          ?using(
-             ?then(?thenx(?REC(term()),?literal($-)), ?REC(term())),
-             fun minus/1)
-         ),
-       ?REC(term())).
+expn(Inp) ->
+    P = ?alt(
+           ?alt(
+              ?using(
+                 ?then(?thenx(?REC(fun term/1),?literal($+)), ?REC(fun term/1)),
+                 fun plus/1),
+              ?using(
+                 ?then(?thenx(?REC(fun term/1),?literal($-)), ?REC(fun term/1)),
+                 fun minus/1)
+             ),
+           ?REC(fun term/1)),
+    P(Inp).
 
-term() ->
-    ?alt(
-       ?alt(
-          ?using(
-             ?then(?thenx(?REC(factor()),?literal($*)), ?REC(factor())),
-             fun times/1),
-          ?using(
-             ?then(?thenx(?REC(factor()),?literal($/)), ?REC(factor())),
-             fun divide/1)
-         ),
-       ?REC(factor())).
+term(Inp) ->
+    P = ?alt(
+           ?alt(
+              ?using(
+                 ?then(?thenx(?REC(fun factor/1),?literal($*)), ?REC(fun factor/1)),
+                 fun times/1),
+              ?using(
+                 ?then(?thenx(?REC(fun factor/1),?literal($/)), ?REC(fun factor/1)),
+                 fun divide/1)
+             ),
+           ?REC(fun factor/1)),
+    P(Inp).
 
-factor() ->
-    ?alt(
-       ?using(?number(), fun value/1),
-       ?thenx(?xthen(?literal(?LPAR),?REC(expn())), ?literal(?RPAR))
-      ).
+factor(Inp) ->
+    P = ?alt(
+           ?using(?number, fun value/1),
+           ?thenx(?xthen(?literal(?LPAR),?REC(fun expn/1)), ?literal(?RPAR))
+          ),
+    P(Inp).
