@@ -7,8 +7,8 @@
     succeed/1
   ]).
 
--spec fail(Inp::[from()]) -> [].
-fail(Inp) -> [].
+-spec fail(_inp::[from()]) -> [].
+fail(_inp) -> [].
 
 -spec literal(Case::'case'()) -> parser('case'(),'case'()).
 literal(X) ->
