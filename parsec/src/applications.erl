@@ -1,34 +1,34 @@
 -module(applications).
 -include("include/types.hrl").
 -export(
-  [ number/0,
-    string/0,
-    word/0
+  [ number/1,
+    string/1,
+    word/1
   ]).
 
--spec number() -> parser(char(),[char()]).
-number() ->
-    combinators:some(primitives:satisfy(fun digit/1)).
+-spec number(Inp :: [char()]) -> [{[char()],[char()]}].
+number(Inp) ->
+    P = combinators:some(primitives:satisfy(fun digit/1)),
+    P(Inp).
 
 digit(X) when $0 =< X andalso X =< $9 ->
     true;
 digit(_) ->
     false.
 
--spec string() -> fun((['case'()]) -> parser(from(),['case'()])).
-string() ->
-    fun([]) ->
-            primitives:succeed([]);
-       ([X|Xs]) ->
-            combinators:using(combinators:then(primitives:literal(X),?REC((string())(Xs))), fun cons/1)
-    end.
+-spec string(Case :: ['case'()]) -> parser(from(),['case'()]).
+string([]) ->
+    primitives:succeed([]);
+string([X|Xs]) ->
+    combinators:using(combinators:then(primitives:literal(X),?REC(string(Xs))), fun cons/1).
 
 cons({X, Xs}) ->
     [X|Xs].
 
--spec word() -> parser(char(),[char()]).
-word() ->
-    combinators:some(primitives:satisfy(fun letter/1)).
+-spec word(Inp :: [char()]) -> [{[char()],[char()]}].
+word(Inp) ->
+    P = combinators:some(primitives:satisfy(fun letter/1)),
+    P(Inp).
 
 letter(X) when ($a =< X andalso X =< $z) orelse ($A =< X andalso X =< $Z) ->
     true;

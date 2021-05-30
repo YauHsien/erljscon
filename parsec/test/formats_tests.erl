@@ -2,7 +2,7 @@
 -include_lib("eunit/include/eunit.hrl").
 
 nibble_test() ->
-    P = formats:nibble((applications:string())("hello")),
+    P = formats:nibble(applications:string("hello")),
     Inp = "\n\thello ,world",
     ?assertMatch([{"hello",",world"},
                   {"hello"," ,world"}
@@ -10,7 +10,7 @@ nibble_test() ->
     ok.
 
 symbol_test() ->
-    P = (formats:symbol())("hi"),
+    P = formats:symbol("hi"),
     Inp = "   hi   there",
     ?assertMatch([{"hi","there"},
                   {"hi"," there"},
