@@ -4,6 +4,7 @@
    [ line_info/1,
      offside/1,
      onside/2,
+     prelex/1,
      satisfy/1
    ]).
 
@@ -30,6 +31,25 @@ offside(Parser) ->
 
 onside({_,{R1,C1}}, {_,{R2,C2}}) ->
     R1 =< R2 andalso C1 =< C2.
+
+-spec prelex(Inp :: [Term::any()]) -> fun(() -> [{ Term::any(), { Row::integer(), Column::integer() }}]).
+prelex(Inp) ->
+    F = pl({0, 0}),
+    F(Inp).
+
+pl({R, C}) ->
+    fun([]) ->
+            [];
+       ([$\t|Xs]) ->
+            [{$\t,{R,C}}|(pl({R,tab(C)}))(Xs)];
+       ([$\n|Xs]) ->
+            [{$\n,{R,C}}|(pl({R+1,0}))(Xs)];
+       ([X|Xs]) ->
+            [{X,{R,C}}|(pl({R,C+1}))(Xs)]
+    end.
+
+tab(C) ->
+    ((C div 8)+1)*8.
 
 -spec satisfy(Predicate :: fun(('case'())->boolean())) -> parser(pos('case'()),'case'()).
 satisfy(Predicate) ->
