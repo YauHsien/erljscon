@@ -23,10 +23,6 @@ satisfy_test() ->
     ?assertMatch([{$h,"ello,world"}], (S1(Predicate))(Inp)),
     ok.
 
--spec succeed() -> fun((Val::to()) -> parser(from(),to())).
-succeed() ->
-    fun(Val) -> fun(Inp) -> [{Val,Inp}] end end.
-
 succeed_test() ->
     S1 = fun primitives:succeed/1,
     Inp = "hello,world",

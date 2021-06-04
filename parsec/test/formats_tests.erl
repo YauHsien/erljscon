@@ -10,7 +10,7 @@ nibble_test() ->
     ok.
 
 symbol_test() ->
-    P = (formats:symbol())("hi"),
+    P = formats:symbol("hi"),
     Inp = "   hi   there",
     ?assertMatch([{"hi","there"},
                   {"hi"," there"},

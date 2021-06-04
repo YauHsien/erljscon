@@ -2,7 +2,7 @@
 -include("include/types.hrl").
 -export(
    [ nibble/1,
-     symbol/0
+     symbol/1
    ]).
 
 -spec nibble(P::parser(char(),to())) -> parser(char(),to()).
@@ -25,6 +25,7 @@ any(P, List) ->
 conjunct(G, F) ->
     fun(Inp) -> G(F(Inp)) end.
 
--spec symbol() -> fun(([char()]) -> parser(char(),[char()])).
-symbol() ->
-    conjunct(fun nibble/1, fun applications:string/1).
+-spec symbol([char()]) -> parser(char(),[char()]).
+symbol(Symbol) ->
+    P = conjunct(fun nibble/1, fun applications:string/1),
+    P(Symbol).
