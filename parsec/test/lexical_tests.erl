@@ -1,6 +1,38 @@
 -module(lexical_tests).
 -include_lib("eunit/include/eunit.hrl").
 
+lexer_test() ->
+    P = fun lexical:lexer/1,
+    Inp = "f x y",
+    ?assertMatch([{[{{'Ident',"f"},{0,0}},
+                    {{'Junk'," "},{0,1}},
+                    {{'Ident',"x"},{0,2}},
+                    {{'Junk'," "},{0,3}},
+                    {{'Ident',"y"},{0,4}}],
+                   []},
+                  {[{{'Ident',"f"},{0,0}},
+                    {{'Junk'," "},{0,1}},
+                    {{'Ident',"x"},{0,2}},
+                    {{'Junk'," "},{0,3}}],
+                   [{121,{0,4}}]},
+                  {[{{'Ident',"f"},{0,0}},
+                    {{'Junk'," "},{0,1}},
+                    {{'Ident',"x"},{0,2}}],
+                   [{32,{0,3}},{121,{0,4}}]},
+                  {[{{'Ident',"f"},{0,0}},{{'Junk'," "},{0,1}}],
+                   [{120,{0,2}},{32,{0,3}},{121,{0,4}}]},
+                  {[{{'Ident',"f"},{0,0}}],
+                   [{32,{0,1}},{120,{0,2}},{32,{0,3}},{121,{0,4}}]},
+                  {[],
+                   [{102,{0,0}},
+                    {32,{0,1}},
+                    {120,{0,2}},
+                    {32,{0,3}},
+                    {121,{0,4}}]}],
+                 P(offside:prelex(Inp))
+                ),
+    ok.
+
 literal_test() ->
     P = lexical:literal($h),
     Inp = offside:prelex("hello,\nworld"),

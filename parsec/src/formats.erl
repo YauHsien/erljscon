@@ -1,7 +1,8 @@
 -module(formats).
 -include("include/types.hrl").
 -export(
-   [ nibble/1,
+   [ any/2,
+     nibble/1,
      symbol/1
    ]).
 

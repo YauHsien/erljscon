@@ -1,7 +1,9 @@
 -module(applications).
 -include("include/types.hrl").
 -export(
-  [ number/1,
+  [ digit/1,
+    letter/1,
+    number/1,
     string/1,
     word/1
   ]).
