@@ -3,8 +3,8 @@
 
 alt_identity_test() ->
     P = primitives:literal($3),
-    C1 = combinators:alt(primitives:fail(), P),
-    C2 = combinators:alt(P, primitives:fail()),
+    C1 = combinators:alt(fun primitives:fail/1, P),
+    C2 = combinators:alt(P, fun primitives:fail/1),
     Inp = "345",
     ?assertEqual(P(Inp), C1(Inp)),
     ?assertEqual(P(Inp), C2(Inp)),

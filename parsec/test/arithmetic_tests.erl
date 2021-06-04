@@ -2,7 +2,7 @@
 -include_lib("eunit/include/eunit.hrl").
 
 expn_test() ->
-    P = arithmetic:expn(),
+    P = fun arithmetic:expn/1,
     Inp = "2+(4-1)*3",
     ?assertMatch(
        [ {{add,{num,2},{mul,{sub,{num,4},{num,1}},{num,3}}}, ""},

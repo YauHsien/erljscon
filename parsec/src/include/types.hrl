@@ -4,3 +4,6 @@
 -type 'case'() :: any().
 -define(REC(X),
         {rec, fun()-> X end}).
+-type pos(Type) :: {Type,{integer(),integer()}}.
+-type tag() :: 'Ident' | 'Number' | 'Symbol' | 'Junk'.
+-type token() :: {tag(),[char()]}.
